@@ -2,7 +2,6 @@ package com.couple.sns.domain.user.service;
 
 import com.couple.sns.common.exception.ErrorCode;
 import com.couple.sns.common.exception.SnsApplicationException;
-import com.couple.sns.common.property.JwtProperties;
 import com.couple.sns.domain.user.fixture.UserEntityFixture;
 import com.couple.sns.domain.user.persistance.UserEntity;
 import com.couple.sns.domain.user.persistance.repository.UserRepository;
@@ -10,6 +9,7 @@ import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 
 import java.util.Optional;
 
@@ -28,6 +28,9 @@ class UserUpdateServiceTest {
     @MockBean
     private UserRepository userRepository;
 
+    @MockBean
+    private BCryptPasswordEncoder encoder;
+
 
     @Test
     void 회원가입_정상동작 (){
@@ -37,6 +40,7 @@ class UserUpdateServiceTest {
         String password = "password";
 
         given(userRepository.save(any())).willReturn(UserEntityFixture.get(id, userId,password));
+        given(encoder.encode(password)).willReturn("encrypt_passowrd");
 
         // when
         userUpdateService.join(userId, password);
@@ -55,6 +59,7 @@ class UserUpdateServiceTest {
         UserEntity fixture = UserEntityFixture.get(id, userId, password);
 
         given(userRepository.findByUserId(userId)).willReturn(Optional.of(fixture));
+        given(encoder.encode(password)).willReturn("encrypt_passowrd");
 
         // when
         SnsApplicationException e = assertThrows(SnsApplicationException.class, () -> userUpdateService.join(userId, password));
@@ -74,6 +79,7 @@ class UserUpdateServiceTest {
         UserEntity fixture = UserEntityFixture.get(id, userId, password);
 
         given(userRepository.findByUserId(any())).willReturn(Optional.of(fixture));
+        given(encoder.matches(password, fixture.getPassword())).willReturn(true);
 
         // when
         userUpdateService.login(userId, password);

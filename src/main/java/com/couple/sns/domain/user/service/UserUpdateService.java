@@ -8,6 +8,7 @@ import com.couple.sns.domain.user.dto.User;
 import com.couple.sns.domain.user.persistance.UserEntity;
 import com.couple.sns.domain.user.persistance.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -16,27 +17,25 @@ import org.springframework.transaction.annotation.Transactional;
 public class UserUpdateService {
 
     private final UserRepository userRepository;
+    private final BCryptPasswordEncoder encoder;
     private final JwtProperties jwtProperties;
 
-    // TODO : password encoding
     @Transactional
     public User join(String userId, String password) {
         userRepository.findByUserId(userId).ifPresent( it -> {
             throw new SnsApplicationException(ErrorCode.DUPLICATED_USER_ID, String.format("%s is duplicated", userId));
         });
 
-        UserEntity userEntity = userRepository.save(UserEntity.toEntity(userId,password));
+        UserEntity userEntity = userRepository.save(UserEntity.toEntity(userId, encoder.encode(password)));
 
         return User.fromEntity(userEntity);
     }
 
     public String login(String userId, String password) {
-        // user id가 있는지
         UserEntity user = userRepository.findByUserId(userId)
                 .orElseThrow( () -> {throw new SnsApplicationException(ErrorCode.USER_NOT_FOUND, String.format("%s not founded", userId));});
 
-        // password가 맞는지
-        if (!user.getPassword().equals(password)) {
+        if(!encoder.matches(password, user.getPassword())){
             throw new SnsApplicationException(ErrorCode.INVALID_PASSWORD);
         }
 
