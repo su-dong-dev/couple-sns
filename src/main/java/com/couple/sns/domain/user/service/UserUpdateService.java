@@ -44,9 +44,4 @@ public class UserUpdateService {
 
         return token;
     }
-
-    public User loadUserByUserId(String userId) {
-        return  userRepository.findByUserId(userId).map(User::fromEntity).orElseThrow(() ->
-                new SnsApplicationException(ErrorCode.USER_NOT_FOUND, String.format("%s not founded", userId)));
-    }
 }

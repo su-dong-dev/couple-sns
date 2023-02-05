@@ -2,7 +2,6 @@ package com.couple.sns.common.configuration;
 
 import com.couple.sns.common.configuration.filter.JwtTokenFilter;
 import com.couple.sns.common.property.JwtProperties;
-import com.couple.sns.domain.user.service.UserUpdateService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -16,7 +15,6 @@ import org.springframework.security.web.authentication.UsernamePasswordAuthentic
 @RequiredArgsConstructor
 public class AuthenticationConfig {
 
-    private final UserUpdateService userUpdateService;
     private final JwtProperties jwtProperties;
 
     @Bean
@@ -26,11 +24,11 @@ public class AuthenticationConfig {
                 .authorizeHttpRequests()
                 .anyRequest().permitAll()
                 .and()
-                .formLogin().and()
+                .formLogin().disable()
                 .logout()
                 .logoutSuccessUrl("/")
                 .and()
-                .addFilterBefore(new JwtTokenFilter(jwtProperties.getSecretKey(), userUpdateService), UsernamePasswordAuthenticationFilter.class)
+                .addFilterBefore(new JwtTokenFilter(jwtProperties.getSecretKey()), UsernamePasswordAuthenticationFilter.class)
                 .build();
     }
 

@@ -1,8 +1,8 @@
 package com.couple.sns.common.configuration.filter;
 
 import com.couple.sns.common.configuration.util.JwtTokenUtils;
-import com.couple.sns.domain.user.dto.User;
-import com.couple.sns.domain.user.service.UserUpdateService;
+import com.couple.sns.common.exception.ErrorCode;
+import com.couple.sns.common.exception.SnsApplicationException;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
@@ -22,7 +22,6 @@ import java.io.IOException;
 public class JwtTokenFilter extends OncePerRequestFilter {
 
     private final String key;
-    private final UserUpdateService userUpdateService;
 
     @Override
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain) throws ServletException, IOException {
@@ -45,10 +44,9 @@ public class JwtTokenFilter extends OncePerRequestFilter {
 
             String userId = JwtTokenUtils.getUserId(token, key);
 
-            User user = userUpdateService.loadUserByUserId(userId);
-
-            UsernamePasswordAuthenticationToken authentication = new UsernamePasswordAuthenticationToken(
-                    user, null, user.getAuthorities()
+            UsernamePasswordAuthenticationToken authentication =
+                    new UsernamePasswordAuthenticationToken(
+                            userId, null
             );
 
             authentication.setDetails(new WebAuthenticationDetailsSource().buildDetails(request));
