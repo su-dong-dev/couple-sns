@@ -9,10 +9,12 @@ spring:
     #    password: ${mysql.password}
   jpa:
     hibernate:
-      ddl-auto: update
+      ddl-auto: create
     show-sql: true
 
 jwt:
   secret-key: project.sns-couple-application-2023-secret_key
-  # 30 dyas
-  expired-time-ms: 2592000000
+  # 1 day
+  expired-time-ms: 86400000
+  # 30 days
+  refresh-expired-time-ms: 2592000000
