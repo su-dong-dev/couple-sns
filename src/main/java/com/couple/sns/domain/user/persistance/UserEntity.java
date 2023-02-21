@@ -44,6 +44,7 @@ public class UserEntity {
     public static UserEntity toEntity(String userId, String password) {
         UserEntity userEntity = new UserEntity();
         userEntity.setUserId(userId);
+        userEntity.setRole(UserRole.USER);
         userEntity.setPassword(password);
 
         return userEntity;
