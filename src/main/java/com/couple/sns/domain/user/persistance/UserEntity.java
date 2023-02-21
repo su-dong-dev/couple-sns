@@ -1,5 +1,6 @@
 package com.couple.sns.domain.user.persistance;
 
+import com.couple.sns.domain.user.dto.UserRole;
 import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.Setter;
@@ -27,6 +28,9 @@ public class UserEntity {
 
     private String password;
 
+    @Enumerated(EnumType.STRING)
+    private UserRole role = UserRole.USER;
+
     @CreationTimestamp
     private LocalDateTime registeredAt;
 
@@ -35,7 +39,6 @@ public class UserEntity {
     private LocalDateTime deletedAt;
 
     public UserEntity() {
-
     }
 
     public static UserEntity toEntity(String userId, String password) {

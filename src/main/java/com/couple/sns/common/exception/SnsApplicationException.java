@@ -21,6 +21,6 @@ public class SnsApplicationException extends RuntimeException {
             return errorCode.getMessage();
         }
 
-        return String.format("%s, %s", errorCode, message);
+        return String.format("%s, %s", errorCode.getMessage(), message);
     }
 }
