@@ -1,5 +1,6 @@
 package com.couple.sns.common.configuration.util;
 
+import com.couple.sns.domain.user.dto.UserRole;
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.SignatureAlgorithm;
@@ -11,7 +12,7 @@ import java.util.Date;
 
 public class JwtTokenUtils {
 
-    // get userName
+    // get userId
     public static String getUserId(String token, String key){
         return extractClaims(token, key).get("userId", String.class);
     }
@@ -29,9 +30,10 @@ public class JwtTokenUtils {
                 .build().parseClaimsJws(token).getBody();
     }
 
-    public static String createToken(String userId, String key, long expiredTimeMs) {
+    public static String createToken(String userId, UserRole userRole, String key, long expiredTimeMs) {
         Claims claims = Jwts.claims();
         claims.put("userId", userId);
+        claims.put("userRole", userRole.name());
 
         return Jwts.builder()
                 .setClaims(claims)
@@ -41,7 +43,20 @@ public class JwtTokenUtils {
                 .compact();
     }
 
+    public static String createRefreshToken(String userId, String key, long refreshExpiredTimeMs) {
+        Claims claims = Jwts.claims();
+        claims.put("userId", userId);
+
+        return Jwts.builder()
+                .setClaims(claims)
+                .setIssuedAt(new Date(System.currentTimeMillis()))
+                .setExpiration(new Date(System.currentTimeMillis() + refreshExpiredTimeMs))
+                .signWith(getKey(key), SignatureAlgorithm.HS256)
+                .compact();
+    }
+
     private static Key getKey(String key) {
         return Keys.hmacShaKeyFor(key.getBytes(StandardCharsets.UTF_8));
     }
+
 }

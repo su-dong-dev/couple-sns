@@ -1,14 +1,20 @@
 package com.couple.sns.domain.user.service;
 
+import com.couple.sns.common.configuration.util.JwtTokenUtils;
 import com.couple.sns.common.exception.ErrorCode;
 import com.couple.sns.common.exception.SnsApplicationException;
+import com.couple.sns.common.property.JwtProperties;
 import com.couple.sns.domain.user.fixture.UserEntityFixture;
 import com.couple.sns.domain.user.persistance.UserEntity;
 import com.couple.sns.domain.user.persistance.repository.UserRepository;
+import io.jsonwebtoken.security.Keys;
+import java.nio.charset.StandardCharsets;
+import java.security.Key;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
+import org.springframework.context.annotation.Import;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 
 import java.util.Optional;
@@ -20,6 +26,7 @@ import static org.mockito.BDDMockito.given;
 import static org.mockito.BDDMockito.then;
 
 @SpringBootTest
+@Import(JwtTokenUtils.class)
 class UserUpdateServiceTest {
 
     @Autowired
@@ -30,7 +37,6 @@ class UserUpdateServiceTest {
 
     @MockBean
     private BCryptPasswordEncoder encoder;
-
 
     @Test
     void 회원가입_정상동작 (){

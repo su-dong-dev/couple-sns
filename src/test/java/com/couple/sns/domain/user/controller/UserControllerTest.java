@@ -3,7 +3,9 @@ package com.couple.sns.domain.user.controller;
 import com.couple.sns.common.exception.ErrorCode;
 import com.couple.sns.common.exception.SnsApplicationException;
 import com.couple.sns.domain.user.dto.User;
+import com.couple.sns.domain.user.dto.request.TokenReIssueRequest;
 import com.couple.sns.domain.user.dto.request.UserJoinRequest;
+import com.couple.sns.domain.user.dto.response.UserTokenResponse;
 import com.couple.sns.domain.user.service.UserUpdateService;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.junit.jupiter.api.Test;
@@ -66,7 +68,8 @@ public class UserControllerTest {
         String userId ="userId";
         String password = "password";
 
-        given(userUpdateService.login(userId, password)).willReturn("token");
+        given(userUpdateService.login(userId, password))
+                .willReturn(new UserTokenResponse("access", "refresh"));
 
         mockMvc.perform(post("/api/v1/users/login")
                         .contentType(MediaType.APPLICATION_JSON)
@@ -101,6 +104,18 @@ public class UserControllerTest {
                         .content(objectMapper.writeValueAsBytes(new UserJoinRequest(userId, password)))
                 ).andDo(print())
                 .andExpect(status().isUnauthorized());
+    }
+
+    @Test
+    public void 토큰만료시_refreshToken으로_새로운_Token_발급() throws Exception {
+        given(userUpdateService.reissue("refreshToken")).willReturn(
+            new UserTokenResponse("accessToken", "refreshToken"));
+
+        mockMvc.perform(post("/api/v1/users/reissue")
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(objectMapper.writeValueAsBytes(new TokenReIssueRequest("refreshToken")))
+            ).andDo(print())
+            .andExpect(status().isOk());
     }
 
 }
