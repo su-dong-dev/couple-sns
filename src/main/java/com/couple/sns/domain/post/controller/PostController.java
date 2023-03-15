@@ -1,11 +1,16 @@
 package com.couple.sns.domain.post.controller;
 
 import com.couple.sns.common.responce.Response;
+import com.couple.sns.domain.post.dto.Post;
 import com.couple.sns.domain.post.dto.request.PostCreateRequest;
+import com.couple.sns.domain.post.dto.request.PostModifyRequest;
+import com.couple.sns.domain.post.dto.response.PostResponse;
 import com.couple.sns.domain.post.service.PostService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.core.Authentication;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
@@ -18,8 +23,15 @@ public class PostController {
     private final PostService postService;
 
     @PostMapping
-    public Response<Void> create(@RequestBody PostCreateRequest request, Authentication authentication) {
-        postService.create(request.getTitle(), request.getBody(), authentication.getName());
-        return Response.success();
+    public Response<PostResponse> create(@RequestBody PostCreateRequest request, Authentication authentication) {
+        Post post = postService.create(request.getTitle(), request.getBody(), authentication.getName());
+        return Response.success(PostResponse.fromPost(post));
+    }
+
+    @PutMapping("/{postId}")
+    public Response<PostResponse> modify(@PathVariable Long postId, @RequestBody PostModifyRequest request,
+        Authentication authentication) {
+        Post post = postService.modify(postId, request.getBody(), request.getBody(), authentication.getName());
+        return Response.success(PostResponse.fromPost(post));
     }
 }
