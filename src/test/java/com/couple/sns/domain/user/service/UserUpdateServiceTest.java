@@ -3,13 +3,11 @@ package com.couple.sns.domain.user.service;
 import com.couple.sns.common.configuration.util.JwtTokenUtils;
 import com.couple.sns.common.exception.ErrorCode;
 import com.couple.sns.common.exception.SnsApplicationException;
-import com.couple.sns.common.property.JwtProperties;
-import com.couple.sns.domain.user.fixture.UserEntityFixture;
+import com.couple.sns.domain.common.fixture.UserEntityFixture;
+import com.couple.sns.domain.user.persistance.TokenEntity;
 import com.couple.sns.domain.user.persistance.UserEntity;
+import com.couple.sns.domain.user.persistance.repository.TokenRepository;
 import com.couple.sns.domain.user.persistance.repository.UserRepository;
-import io.jsonwebtoken.security.Keys;
-import java.nio.charset.StandardCharsets;
-import java.security.Key;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -34,6 +32,9 @@ class UserUpdateServiceTest {
 
     @MockBean
     private UserRepository userRepository;
+
+    @MockBean
+    private TokenRepository tokenRepository;
 
     @MockBean
     private BCryptPasswordEncoder encoder;
@@ -86,6 +87,7 @@ class UserUpdateServiceTest {
 
         given(userRepository.findByUserId(any())).willReturn(Optional.of(fixture));
         given(encoder.matches(password, fixture.getPassword())).willReturn(true);
+        given(tokenRepository.save(any())).willReturn(any(TokenEntity.class));
 
         // when
         userUpdateService.login(userId, password);

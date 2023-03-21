@@ -1,4 +1,4 @@
-package com.couple.sns.domain.user.fixture;
+package com.couple.sns.domain.common.fixture;
 
 import com.couple.sns.domain.user.persistance.UserEntity;
 
