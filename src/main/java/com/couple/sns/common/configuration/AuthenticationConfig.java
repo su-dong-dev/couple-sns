@@ -1,6 +1,8 @@
 package com.couple.sns.common.configuration;
 
 import com.couple.sns.common.configuration.filter.JwtTokenFilter;
+import com.couple.sns.common.exception.CustomAccessDeniedHandler;
+import com.couple.sns.common.exception.CustomAuthenticationEntryPoint;
 import com.couple.sns.common.property.JwtProperties;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
@@ -22,13 +24,18 @@ public class AuthenticationConfig {
         return http
                 .cors().and().csrf().disable()
                 .authorizeHttpRequests()
-                .anyRequest().permitAll()
+                .requestMatchers("/api/*/users/join", "/api/*/users/login").permitAll()
+                .requestMatchers("/api/**").authenticated()
                 .and()
                 .formLogin().disable()
                 .logout()
                 .logoutSuccessUrl("/")
                 .and()
                 .addFilterBefore(new JwtTokenFilter(jwtProperties.getSecretKey()), UsernamePasswordAuthenticationFilter.class)
+                .exceptionHandling()
+                    .accessDeniedHandler(new CustomAccessDeniedHandler())
+                    .authenticationEntryPoint(new CustomAuthenticationEntryPoint())
+                .and()
                 .build();
     }
 

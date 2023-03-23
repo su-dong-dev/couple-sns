@@ -14,6 +14,7 @@ import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMock
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.http.MediaType;
+import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.test.web.servlet.MockMvc;
 
 import static org.mockito.ArgumentMatchers.any;
@@ -107,6 +108,7 @@ public class UserControllerTest {
     }
 
     @Test
+    @WithMockUser
     public void 토큰만료시_refreshToken으로_새로운_Token_발급() throws Exception {
         given(userUpdateService.reissue("refreshToken")).willReturn(
             new UserTokenResponse("accessToken", "refreshToken"));
