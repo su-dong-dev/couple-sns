@@ -17,6 +17,11 @@ public class JwtTokenUtils {
         return extractClaims(token, key).get("userId", String.class);
     }
 
+    // get user role
+    public static String getUserRole(String token, String key){
+        return extractClaims(token, key).get("userRole", String.class);
+    }
+
     // check token isExpired
     public static boolean isExpired(String token, String key){
         Date expiredDate = extractClaims(token,key).getExpiration();
