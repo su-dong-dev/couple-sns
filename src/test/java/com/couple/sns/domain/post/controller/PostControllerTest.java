@@ -1,6 +1,5 @@
 package com.couple.sns.domain.post.controller;
 
-import static java.util.Optional.*;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.BDDMockito.given;
@@ -19,7 +18,6 @@ import com.couple.sns.domain.post.dto.request.PostModifyRequest;
 import com.couple.sns.domain.post.dto.response.PostIdResponse;
 import com.couple.sns.domain.post.service.PostService;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import java.util.Optional;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
@@ -41,7 +39,7 @@ public class PostControllerTest {
     private PostService postService;
 
     @Test
-    @WithMockUser
+    @WithMockUser(authorities = "USER")
     public void 포스트_작성_성공() throws Exception {
         String title = "title";
         String body = "body";
@@ -72,7 +70,7 @@ public class PostControllerTest {
     }
 
     @Test
-    @WithMockUser
+    @WithMockUser(authorities = "USER")
     public void 포스트_수정_성공() throws Exception {
         String title = "modify_title";
         String body = "modify_body";
@@ -88,7 +86,7 @@ public class PostControllerTest {
     }
 
     @Test
-    @WithMockUser
+    @WithMockUser(authorities = "USER")
     public void 포스트_삭제_성공() throws Exception {
 
         given(postService.delete(any(),any()))
