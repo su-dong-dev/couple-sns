@@ -5,6 +5,7 @@ import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.BDDMockito.given;
 import static org.mockito.BDDMockito.then;
+import static org.mockito.Mockito.mock;
 
 import com.couple.sns.common.exception.ErrorCode;
 import com.couple.sns.common.exception.SnsApplicationException;
@@ -19,6 +20,8 @@ import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 
 @SpringBootTest
 public class PostServiceTest {
@@ -33,6 +36,32 @@ public class PostServiceTest {
     static Long postId = 1L;
     static String title = "title";
     static String body = "body";
+
+
+    @Test
+    public void 전체_포스트_목록_요청이_성공한_경우() {
+        Pageable pageable = mock(Pageable.class);
+
+        given(postRepository.findAll(pageable)).willReturn(Page.empty());
+
+        postService.list(pageable);
+
+        then(postRepository).should().findAll(any(Pageable.class));
+    }
+
+    @Test
+    public void 내_포스트_목록_요청이_성공한_경우() {
+        Pageable pageable = mock(Pageable.class);
+        UserEntity userEntity = getUserEntity(userId, password);
+
+        given(userRepository.findByUserId(userId)).willReturn(Optional.of(userEntity));
+        given(postRepository.findAllByUser(userEntity, pageable)).willReturn(Page.empty());
+
+        postService.my(userId, pageable);
+
+        then(userRepository).should().findByUserId(any(String.class));
+        then(postRepository).should().findAllByUser(any(UserEntity.class), any(Pageable.class));
+    }
 
     @Test
     public void 포스트_작성이_성공한_경우() {

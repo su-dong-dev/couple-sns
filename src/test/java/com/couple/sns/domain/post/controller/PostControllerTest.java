@@ -4,6 +4,7 @@ import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.BDDMockito.given;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.delete;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.put;
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
@@ -23,6 +24,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.http.MediaType;
 import org.springframework.security.test.context.support.WithAnonymousUser;
 import org.springframework.security.test.context.support.WithMockUser;
@@ -37,6 +40,55 @@ public class PostControllerTest {
 
     @MockBean
     private PostService postService;
+
+    @Test
+    @WithMockUser(authorities = "USER")
+    public void 전체_피드목록() throws Exception {
+
+        given(postService.list(any(Pageable.class))).willReturn(Page.empty());
+
+        mockMvc.perform(get("/api/v1/posts")
+                .contentType(MediaType.APPLICATION_JSON)
+            ).andDo(print())
+            .andExpect(status().isOk());
+
+    }
+
+    @Test
+    @WithAnonymousUser
+    public void 전체_피드목록_요청시_로그인하지않은경우() throws Exception {
+
+        given(postService.list(any())).willThrow(new SnsApplicationException(ErrorCode.USER_NOT_FOUND));
+
+        mockMvc.perform(get("/api/vi/posts")
+                .contentType(MediaType.APPLICATION_JSON)
+            ).andDo(print())
+            .andExpect(status().isNotFound());
+    }
+
+    @Test
+    @WithMockUser(authorities = "USER")
+    public void 내_피드목록() throws Exception {
+
+        given(postService.my(any(), any(Pageable.class))).willReturn(Page.empty());
+
+        mockMvc.perform(get("/api/v1/posts/my")
+                .contentType(MediaType.APPLICATION_JSON)
+            ).andDo(print())
+            .andExpect(status().isOk());
+    }
+
+    @Test
+    @WithAnonymousUser
+    public void 내_피드목록_요청시_로그인하지않은경우() throws Exception {
+
+        given(postService.my(any(), any(Pageable.class))).willThrow(new SnsApplicationException(ErrorCode.USER_NOT_FOUND));
+
+        mockMvc.perform(get("/api/v1/posts/my")
+                .contentType(MediaType.APPLICATION_JSON)
+            ).andDo(print())
+            .andExpect(status().isNotFound());
+    }
 
     @Test
     @WithMockUser(authorities = "USER")

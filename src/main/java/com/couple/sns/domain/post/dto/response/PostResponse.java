@@ -1,6 +1,7 @@
 package com.couple.sns.domain.post.dto.response;
 
 import com.couple.sns.domain.post.dto.Post;
+import java.time.LocalDateTime;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 
@@ -12,13 +13,20 @@ public class PostResponse {
     private String userId;
     private String title;
     private String body;
+    private LocalDateTime registeredAt;
+    private LocalDateTime updatedAt;
+    private LocalDateTime deletedAt;
+
 
     public static PostResponse fromPost(Post post) {
         return new PostResponse(
             post.getId(),
             post.getUser().getUserId(),
             post.getTitle(),
-            post.getBody()
+            post.getBody(),
+            post.getRegisteredAt(),
+            post.getUpdatedAt(),
+            post.getDeletedAt()
         );
     }
 }
