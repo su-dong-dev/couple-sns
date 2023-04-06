@@ -9,6 +9,8 @@ import com.couple.sns.domain.post.persistance.repository.PostRepository;
 import com.couple.sns.domain.user.persistance.UserEntity;
 import com.couple.sns.domain.user.persistance.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -18,6 +20,15 @@ public class PostService {
 
     private final UserRepository userRepository;
     private final PostRepository postRepository;
+
+    public Page<Post> list(Pageable pageable) {
+       return postRepository.findAll(pageable).map(Post::fromEntity);
+    }
+
+    public Page<Post> my(String userId, Pageable pageable) {
+        UserEntity user = getUserOrElseThrow(userId);
+        return postRepository.findAllByUser(user, pageable).map(Post::fromEntity);
+    }
 
     @Transactional
     public Post create(String title, String body, String userId) {
