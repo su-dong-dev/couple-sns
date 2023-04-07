@@ -2,9 +2,8 @@ name: couple-sns server CI/CD
 
 on:
   push:
-    branches: [ main ]
-  pull_request:
-    branches: [ main ]
+    branches:
+      - main
 
 env:
   S3_BUCKET_NAME: couple-sns-deploy
@@ -15,16 +14,19 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-    - uses: actions/checkout@v2
+    - uses: actions/checkout@v3
 
     - name: Set up JDK 17
-      uses: actions/setup-java@v2
+      uses: actions/setup-java@v3
       with:
         java-version: '17'
         distribution: 'temurin'
 
     - name: Grant execute permission for gradlew
       run: chmod +x gradlew
+
+    - name: Test with Gradle
+      run: ./gradlew --info test
 
     - name: Build with Gradle
       run: ./gradlew clean build
