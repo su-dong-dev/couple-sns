@@ -58,4 +58,10 @@ public class PostController {
     public Response<PostIdResponse> delete(@PathVariable Long postId, Authentication authentication) {
         return Response.success(postService.delete(postId, authentication.getName()));
     }
+
+    @PostMapping("/{postId}/likes")
+    public Response<Void> like(@PathVariable Long postId, Authentication authentication) {
+        postService.like(postId, authentication.getName());
+        return Response.success();
+    }
 }

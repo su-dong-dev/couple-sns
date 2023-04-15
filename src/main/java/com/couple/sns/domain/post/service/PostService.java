@@ -2,9 +2,12 @@ package com.couple.sns.domain.post.service;
 
 import com.couple.sns.common.exception.ErrorCode;
 import com.couple.sns.common.exception.SnsApplicationException;
+import com.couple.sns.domain.post.dto.Like;
 import com.couple.sns.domain.post.dto.Post;
 import com.couple.sns.domain.post.dto.response.PostIdResponse;
+import com.couple.sns.domain.post.persistance.LikeEntity;
 import com.couple.sns.domain.post.persistance.PostEntity;
+import com.couple.sns.domain.post.persistance.repository.LikeRepository;
 import com.couple.sns.domain.post.persistance.repository.PostRepository;
 import com.couple.sns.domain.user.persistance.UserEntity;
 import com.couple.sns.domain.user.persistance.repository.UserRepository;
@@ -20,6 +23,7 @@ public class PostService {
 
     private final UserRepository userRepository;
     private final PostRepository postRepository;
+    private final LikeRepository likeRepository;
 
     public Page<Post> list(Pageable pageable) {
        return postRepository.findAll(pageable).map(Post::fromEntity);
@@ -65,6 +69,17 @@ public class PostService {
         postRepository.delete(post);
 
         return new PostIdResponse(postId, userId);
+    }
+
+    public void like(Long postId, String userId) {
+        PostEntity post = getPostOrElseThrow(postId);
+        UserEntity user = getUserOrElseThrow(userId);
+
+        likeRepository.findByUserAndPost(post, user).ifPresent(it -> {
+            throw new SnsApplicationException(ErrorCode.ALREADY_LIKED_POST, String.format("userName %s already like post %d", userId, postId));
+        });
+
+        likeRepository.save(LikeEntity.toEntity(user, post));
     }
 
     private UserEntity getUserOrElseThrow(String userId) {

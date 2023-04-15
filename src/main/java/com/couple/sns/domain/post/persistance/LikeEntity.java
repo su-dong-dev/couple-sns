@@ -1,6 +1,5 @@
-package com.couple.sns.domain.post.persistance.repository;
+package com.couple.sns.domain.post.persistance;
 
-import com.couple.sns.domain.post.persistance.PostEntity;
 import com.couple.sns.domain.user.persistance.UserEntity;
 import jakarta.persistence.Entity;
 import jakarta.persistence.FetchType;
@@ -21,8 +20,8 @@ import org.hibernate.annotations.Where;
 @Setter
 @Getter
 @Entity
-@Table(name = "like")
-@SQLDelete(sql = "UPDATE like SET deleted_at = NOW() WHERE id = ?")
+@Table(name = "likes")
+@SQLDelete(sql = "UPDATE likes SET deleted_at = NOW() WHERE id = ?")
 @Where(clause = "deleted_at is NULL")
 public class LikeEntity {
 

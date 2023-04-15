@@ -9,9 +9,13 @@ import static org.mockito.Mockito.mock;
 
 import com.couple.sns.common.exception.ErrorCode;
 import com.couple.sns.common.exception.SnsApplicationException;
+import com.couple.sns.domain.common.fixture.LikeEntityFixture;
 import com.couple.sns.domain.common.fixture.PostEntityFixture;
 import com.couple.sns.domain.common.fixture.UserEntityFixture;
+import com.couple.sns.domain.post.dto.Like;
+import com.couple.sns.domain.post.persistance.LikeEntity;
 import com.couple.sns.domain.post.persistance.PostEntity;
+import com.couple.sns.domain.post.persistance.repository.LikeRepository;
 import com.couple.sns.domain.post.persistance.repository.PostRepository;
 import com.couple.sns.domain.user.persistance.UserEntity;
 import com.couple.sns.domain.user.persistance.repository.UserRepository;
@@ -29,6 +33,7 @@ public class PostServiceTest {
     @Autowired private PostService postService;
     @MockBean private PostRepository postRepository;
     @MockBean private UserRepository userRepository;
+    @MockBean private LikeRepository likeRepository;
 
 
     static String userId = "userId";
@@ -36,7 +41,7 @@ public class PostServiceTest {
     static Long postId = 1L;
     static String title = "title";
     static String body = "body";
-
+    static Long likeId = 1L;
 
     @Test
     public void 전체_포스트_목록_요청이_성공한_경우() {
@@ -201,12 +206,60 @@ public class PostServiceTest {
         then(postRepository).should().findById(any(Long.class));
     }
 
+    @Test
+    public void 좋아요_버튼이_성공적으로_클릭된경우() {
+        PostEntity postEntity = getPostEntity(userId, title, body);
+        UserEntity userEntity = getUserEntity(userId,password);
+
+        given(userRepository.findByUserId(userId)).willReturn(Optional.of(userEntity));
+        given(postRepository.findById(postId)).willReturn(Optional.of(postEntity));
+        given(likeRepository.findByUserAndPost(postEntity, userEntity)).willReturn(Optional.empty());
+        given(likeRepository.save(any())).willReturn(any(LikeEntity.class));
+
+        // when
+        postService.like(postId, userId);
+
+        // then
+        then(userRepository).should().findByUserId(any(String.class));
+        then(postRepository).should().findById(any(Long.class));
+        then(likeRepository).should().findByUserAndPost(any(PostEntity.class), any(UserEntity.class));
+        then(likeRepository).should().save(any(LikeEntity.class));
+    }
+
+    @Test
+    public void 좋아요_버튼이_이미_클릭되어있는경우() {
+        // given
+        PostEntity postEntity = getPostEntity(userId, title, body);
+        UserEntity userEntity = getUserEntity(userId, password);
+
+        LikeEntity likeEntity = getLikeEntity(likeId, userEntity, postEntity);
+
+        given(userRepository.findByUserId(userId)).willReturn(Optional.of(userEntity));
+        given(postRepository.findById(postId)).willReturn(Optional.of(postEntity));
+        given(likeRepository.findByUserAndPost(postEntity, userEntity)).willReturn(Optional.of(likeEntity));
+
+        // when
+        SnsApplicationException e = assertThrows(SnsApplicationException.class,
+            () -> postService.like(postId, userId));
+
+        // then
+        assertEquals(ErrorCode.ALREADY_LIKED_POST, e.getErrorCode());
+        then(userRepository).should().findByUserId(any(String.class));
+        then(postRepository).should().findById(any(Long.class));
+        then(likeRepository).should().findByUserAndPost(any(PostEntity.class), any(UserEntity.class));
+    }
+
+
     private UserEntity getUserEntity(String userId, String password) {
         return UserEntityFixture.get(1L, userId, password);
     }
 
     private PostEntity getPostEntity(String userId, String title, String body) {
         return PostEntityFixture.get(userId, postId, 1L, title, body);
+    }
+
+    private LikeEntity getLikeEntity(Long likeId, UserEntity user, PostEntity post) {
+        return LikeEntityFixture.get(likeId, user, post);
     }
 
 }
