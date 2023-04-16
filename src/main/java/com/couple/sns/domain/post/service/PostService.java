@@ -77,16 +77,17 @@ public class PostService {
         PostEntity post = getPostOrElseThrow(postId);
         UserEntity user = getUserOrElseThrow(userId);
 
-        if(likeRepository.findByPostAndUser(post,user).isPresent()){
-            likeRepository.delete(likeRepository.findByPostAndUser(post, user).get());
-        }else {
+        if (likeRepository.findByPostIdAndUserId(post.getId(), user.getId()).isEmpty()) {
             likeRepository.save(LikeEntity.toEntity(user, post));
+        } else {
+            likeRepository.delete(likeRepository.findByPostIdAndUserId(post.getId(), user.getId()).get());
         }
     }
 
     public LikeResponse likeList(Long postId, Pageable pageable) {
         PostEntity post = getPostOrElseThrow(postId);
-        return LikeResponse.from(post.getId(), likeRepository.findAllByPost(post, pageable).map(Like::fromEntity));
+
+        return LikeResponse.from(post.getId(), likeRepository.findAllByPostId(post.getId(), pageable).map(Like::fromEntity));
     }
 
     private UserEntity getUserOrElseThrow(String userId) {

@@ -2,12 +2,9 @@ package com.couple.sns.domain.post.persistance;
 
 import com.couple.sns.domain.user.persistance.UserEntity;
 import jakarta.persistence.Entity;
-import jakarta.persistence.FetchType;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
-import jakarta.persistence.JoinColumn;
-import jakarta.persistence.ManyToOne;
 import jakarta.persistence.Table;
 import java.time.LocalDateTime;
 import lombok.Getter;
@@ -29,13 +26,10 @@ public class LikeEntity {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "user_id")
-    private UserEntity user;
+    private Long userId;
+    private String userName;
 
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "post_id")
-    private PostEntity post;
+    private Long postId;
 
     @CreationTimestamp
     private LocalDateTime registeredAt;
@@ -50,8 +44,9 @@ public class LikeEntity {
     public static LikeEntity toEntity(UserEntity userEntity, PostEntity postEntity) {
         LikeEntity likeEntity = new LikeEntity();
 
-        likeEntity.setUser(userEntity);
-        likeEntity.setPost(postEntity);
+        likeEntity.setId(userEntity.getId());
+        likeEntity.setUserName(userEntity.getUserId());
+        likeEntity.setPostId(postEntity.getId());
 
         return likeEntity;
     }

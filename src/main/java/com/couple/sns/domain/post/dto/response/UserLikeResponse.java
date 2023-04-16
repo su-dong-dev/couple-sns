@@ -1,6 +1,5 @@
 package com.couple.sns.domain.post.dto.response;
 
-import com.couple.sns.domain.user.dto.User;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 
@@ -8,13 +7,13 @@ import lombok.Getter;
 @AllArgsConstructor
 public class UserLikeResponse {
 
-    private Long id;
-    private String userId;
+    private Long userId;
+    private String userName;
 
-    public static UserLikeResponse fromUser(User user) {
+    public static UserLikeResponse fromUser(Long userId, String userName) {
         return new UserLikeResponse(
-            user.getId(),
-            user.getUserId()
+            userId,
+            userName
         );
     }
 }
