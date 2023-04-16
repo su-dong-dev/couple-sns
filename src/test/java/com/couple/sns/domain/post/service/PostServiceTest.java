@@ -3,6 +3,7 @@ package com.couple.sns.domain.post.service;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.BDDMockito.given;
 import static org.mockito.BDDMockito.then;
 import static org.mockito.Mockito.mock;
@@ -12,7 +13,6 @@ import com.couple.sns.common.exception.SnsApplicationException;
 import com.couple.sns.domain.common.fixture.LikeEntityFixture;
 import com.couple.sns.domain.common.fixture.PostEntityFixture;
 import com.couple.sns.domain.common.fixture.UserEntityFixture;
-import com.couple.sns.domain.post.dto.Like;
 import com.couple.sns.domain.post.persistance.LikeEntity;
 import com.couple.sns.domain.post.persistance.PostEntity;
 import com.couple.sns.domain.post.persistance.repository.LikeRepository;
@@ -213,7 +213,7 @@ public class PostServiceTest {
 
         given(userRepository.findByUserId(userId)).willReturn(Optional.of(userEntity));
         given(postRepository.findById(postId)).willReturn(Optional.of(postEntity));
-        given(likeRepository.findByUserAndPost(postEntity, userEntity)).willReturn(Optional.empty());
+        given(likeRepository.findByPostAndUser(postEntity, userEntity)).willReturn(Optional.empty());
         given(likeRepository.save(any())).willReturn(any(LikeEntity.class));
 
         // when
@@ -222,7 +222,7 @@ public class PostServiceTest {
         // then
         then(userRepository).should().findByUserId(any(String.class));
         then(postRepository).should().findById(any(Long.class));
-        then(likeRepository).should().findByUserAndPost(any(PostEntity.class), any(UserEntity.class));
+        then(likeRepository).should().findByPostAndUser(any(PostEntity.class), any(UserEntity.class));
         then(likeRepository).should().save(any(LikeEntity.class));
     }
 
@@ -236,17 +236,33 @@ public class PostServiceTest {
 
         given(userRepository.findByUserId(userId)).willReturn(Optional.of(userEntity));
         given(postRepository.findById(postId)).willReturn(Optional.of(postEntity));
-        given(likeRepository.findByUserAndPost(postEntity, userEntity)).willReturn(Optional.of(likeEntity));
+        given(likeRepository.findByPostAndUser(postEntity, userEntity)).willReturn(Optional.of(likeEntity));
 
         // when
-        SnsApplicationException e = assertThrows(SnsApplicationException.class,
-            () -> postService.like(postId, userId));
+        postService.like(postId, userId);
 
         // then
-        assertEquals(ErrorCode.ALREADY_LIKED_POST, e.getErrorCode());
         then(userRepository).should().findByUserId(any(String.class));
         then(postRepository).should().findById(any(Long.class));
-        then(likeRepository).should().findByUserAndPost(any(PostEntity.class), any(UserEntity.class));
+        then(likeRepository).should().findByPostAndUser(any(PostEntity.class), any(UserEntity.class));
+        then(likeRepository).should().delete(any(LikeEntity.class));
+    }
+
+    @Test
+    public void 포스트에_좋아요수와_좋아요누른_유저_리스트_출력() {
+        // given
+        Pageable pageable = mock(Pageable.class);
+        PostEntity postEntity = getPostEntity(userId, title, body);
+
+        given(postRepository.findById(postEntity.getId())).willReturn(Optional.of(postEntity));
+        given(likeRepository.findAllByPost(eq(postEntity), any(Pageable.class))).willReturn(Page.empty());
+
+        // when
+        postService.likeList(postId, pageable);
+
+        // then
+        then(postRepository).should().findById(any(Long.class));
+        then(likeRepository).should().findAllByPost(any(PostEntity.class), any(Pageable.class));
     }
 
 

@@ -17,9 +17,13 @@ import com.couple.sns.domain.common.fixture.PostEntityFixture;
 import com.couple.sns.domain.post.dto.Post;
 import com.couple.sns.domain.post.dto.request.PostCreateRequest;
 import com.couple.sns.domain.post.dto.request.PostModifyRequest;
+import com.couple.sns.domain.post.dto.response.LikeResponse;
 import com.couple.sns.domain.post.dto.response.PostIdResponse;
+import com.couple.sns.domain.post.dto.response.UserLikeResponse;
 import com.couple.sns.domain.post.service.PostService;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import java.util.ArrayList;
+import java.util.List;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
@@ -184,6 +188,21 @@ public class PostControllerTest {
             .andExpect(status().isNotFound());
     }
 
+    @Test
+    @WithMockUser(authorities = "USER")
+    public void 좋아요누른_유저_목록() throws Exception {
 
+        Long postId = 1L;
+        Long pageSize = 1L;
+        List<UserLikeResponse> users = new ArrayList<>();
+
+        given(postService.likeList(eq(postId),any(Pageable.class))).willReturn(new LikeResponse(postId, pageSize, users));
+
+        mockMvc.perform(get("/api/v1/posts/1/likes")
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(objectMapper.writeValueAsBytes(new LikeResponse(1L, 1L, users)))
+            ).andDo(print())
+            .andExpect(status().isOk());
+    }
 
 }
