@@ -4,6 +4,7 @@ import com.couple.sns.common.responce.Response;
 import com.couple.sns.domain.post.dto.Post;
 import com.couple.sns.domain.post.dto.request.PostCreateRequest;
 import com.couple.sns.domain.post.dto.request.PostModifyRequest;
+import com.couple.sns.domain.post.dto.response.LikeResponse;
 import com.couple.sns.domain.post.dto.response.PostIdResponse;
 import com.couple.sns.domain.post.dto.response.PostResponse;
 import com.couple.sns.domain.post.service.PostService;
@@ -57,5 +58,16 @@ public class PostController {
     @DeleteMapping("/{postId}")
     public Response<PostIdResponse> delete(@PathVariable Long postId, Authentication authentication) {
         return Response.success(postService.delete(postId, authentication.getName()));
+    }
+
+    @PostMapping("/{postId}/likes")
+    public Response<Void> like(@PathVariable Long postId, Authentication authentication) {
+        postService.like(postId, authentication.getName());
+        return Response.success();
+    }
+
+    @GetMapping("/{postId}/likes")
+    public Response<LikeResponse> likeList(@PathVariable Long postId, Pageable pageable) {
+        return Response.success(postService.likeList(postId, pageable));
     }
 }

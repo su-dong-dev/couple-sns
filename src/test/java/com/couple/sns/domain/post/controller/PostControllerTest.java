@@ -3,6 +3,7 @@ package com.couple.sns.domain.post.controller;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.BDDMockito.given;
+import static org.mockito.BDDMockito.willThrow;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.delete;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
@@ -16,9 +17,13 @@ import com.couple.sns.domain.common.fixture.PostEntityFixture;
 import com.couple.sns.domain.post.dto.Post;
 import com.couple.sns.domain.post.dto.request.PostCreateRequest;
 import com.couple.sns.domain.post.dto.request.PostModifyRequest;
+import com.couple.sns.domain.post.dto.response.LikeResponse;
 import com.couple.sns.domain.post.dto.response.PostIdResponse;
+import com.couple.sns.domain.post.dto.response.UserLikeResponse;
 import com.couple.sns.domain.post.service.PostService;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import java.util.ArrayList;
+import java.util.List;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
@@ -147,6 +152,55 @@ public class PostControllerTest {
         mockMvc.perform(delete("/api/v1/posts/1")
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(objectMapper.writeValueAsBytes(new PostIdResponse(1L, "userId")))
+            ).andDo(print())
+            .andExpect(status().isOk());
+    }
+
+    @Test
+    @WithMockUser(authorities = "USER")
+    public void 좋아요_기능() throws Exception {
+
+        mockMvc.perform(post("/api/v1/posts/1/likes")
+                .contentType(MediaType.APPLICATION_JSON)
+            ).andDo(print())
+            .andExpect(status().isOk());
+    }
+
+    @Test
+    @WithAnonymousUser
+    public void 좋아요_기능_로그인하지_않은_경우() throws Exception {
+
+        mockMvc.perform(post("/api/v1/posts/1/likes")
+                .contentType(MediaType.APPLICATION_JSON)
+            ).andDo(print())
+            .andExpect(status().isNotFound());
+    }
+
+    @Test
+    @WithMockUser(authorities = "USER")
+    public void 좋아요버튼_클릭시_포스트가_없는_경우() throws Exception {
+
+        willThrow(new SnsApplicationException(ErrorCode.POST_NOT_FOUND)).given(postService).like(any(), any());
+
+        mockMvc.perform(post("/api/v1/posts/1/likes")
+                .contentType(MediaType.APPLICATION_JSON)
+            ).andDo(print())
+            .andExpect(status().isNotFound());
+    }
+
+    @Test
+    @WithMockUser(authorities = "USER")
+    public void 좋아요누른_유저_목록() throws Exception {
+
+        Long postId = 1L;
+        Long pageSize = 1L;
+        List<UserLikeResponse> users = new ArrayList<>();
+
+        given(postService.likeList(eq(postId),any(Pageable.class))).willReturn(new LikeResponse(postId, pageSize, users));
+
+        mockMvc.perform(get("/api/v1/posts/1/likes")
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(objectMapper.writeValueAsBytes(new LikeResponse(1L, 1L, users)))
             ).andDo(print())
             .andExpect(status().isOk());
     }
