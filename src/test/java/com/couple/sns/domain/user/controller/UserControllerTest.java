@@ -37,72 +37,72 @@ public class UserControllerTest {
 
     @Test
     public void 회원가입() throws Exception {
-        String userId = "userId";
+        String userName = "userName";
         String password = "password";
 
-        given(userUpdateService.join(userId,password)).willReturn(mock(User.class));
+        given(userUpdateService.join(userName,password)).willReturn(mock(User.class));
 
         mockMvc.perform(post("/api/v1/users/join")
                         .contentType(MediaType.APPLICATION_JSON)
-                        .content(objectMapper.writeValueAsBytes(new UserJoinRequest(userId, password)))
+                        .content(objectMapper.writeValueAsBytes(new UserJoinRequest(userName, password)))
                 ).andDo(print())
                 .andExpect(status().isOk());
         then(userUpdateService).should().join(any(String.class),any(String.class));
     }
 
     @Test
-    public void 회원가입시_이미_회원가입된_userId로_회원가입을_하는경우() throws Exception {
-        String userId = "userId";
+    public void 회원가입시_이미_회원가입된_userName로_회원가입을_하는경우() throws Exception {
+        String userName = "userName";
         String password = "password";
 
-        when(userUpdateService.join(userId, password)).thenThrow(new SnsApplicationException(ErrorCode.DUPLICATED_USER_ID));
+        when(userUpdateService.join(userName, password)).thenThrow(new SnsApplicationException(ErrorCode.DUPLICATED_USER_NAME));
 
         mockMvc.perform(post("/api/v1/users/join")
                         .contentType(MediaType.APPLICATION_JSON)
-                        .content(objectMapper.writeValueAsBytes(new UserJoinRequest(userId, password)))
+                        .content(objectMapper.writeValueAsBytes(new UserJoinRequest(userName, password)))
                 ).andDo(print())
                 .andExpect(status().isConflict());
     }
 
     @Test
     public void 로그인() throws Exception {
-        String userId ="userId";
+        String userName ="userName";
         String password = "password";
 
-        given(userUpdateService.login(userId, password))
+        given(userUpdateService.login(userName, password))
                 .willReturn(new UserTokenResponse("access", "refresh"));
 
         mockMvc.perform(post("/api/v1/users/login")
                         .contentType(MediaType.APPLICATION_JSON)
-                        .content(objectMapper.writeValueAsBytes(new UserJoinRequest(userId, password)))
+                        .content(objectMapper.writeValueAsBytes(new UserJoinRequest(userName, password)))
                 ).andDo(print())
                 .andExpect(status().isOk());
     }
 
     @Test
-    public void 로그인시_회원가입이_안된_userId일_경우() throws Exception {
-        String userId ="userId";
+    public void 로그인시_회원가입이_안된_userName일_경우() throws Exception {
+        String userName ="userName";
         String password = "password";
 
-        given(userUpdateService.login(userId, password)).willThrow(new SnsApplicationException(ErrorCode.USER_NOT_FOUND));
+        given(userUpdateService.login(userName, password)).willThrow(new SnsApplicationException(ErrorCode.USER_NOT_FOUND));
 
         mockMvc.perform(post("/api/v1/users/login")
                         .contentType(MediaType.APPLICATION_JSON)
-                        .content(objectMapper.writeValueAsBytes(new UserJoinRequest(userId, password)))
+                        .content(objectMapper.writeValueAsBytes(new UserJoinRequest(userName, password)))
                 ).andDo(print())
                 .andExpect(status().isNotFound());
     }
 
     @Test
     public void 로그인시_password가_틀릴_경우() throws Exception {
-        String userId ="userId";
+        String userName ="userName";
         String password = "password";
 
-        given(userUpdateService.login(userId, password)).willThrow(new SnsApplicationException(ErrorCode.INVALID_PASSWORD));
+        given(userUpdateService.login(userName, password)).willThrow(new SnsApplicationException(ErrorCode.INVALID_PASSWORD));
 
         mockMvc.perform(post("/api/v1/users/login")
                         .contentType(MediaType.APPLICATION_JSON)
-                        .content(objectMapper.writeValueAsBytes(new UserJoinRequest(userId, password)))
+                        .content(objectMapper.writeValueAsBytes(new UserJoinRequest(userName, password)))
                 ).andDo(print())
                 .andExpect(status().isUnauthorized());
     }
