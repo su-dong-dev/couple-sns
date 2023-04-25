@@ -4,10 +4,10 @@ import com.couple.sns.domain.post.persistance.PostEntity;
 import com.couple.sns.domain.user.persistance.UserEntity;
 
 public class PostEntityFixture {
-    public static PostEntity get(String userName, Long postId, Long userId, String title, String body) {
+    public static PostEntity get(String userId, Long postId, Long id, String title, String body) {
         UserEntity user = new UserEntity();
-        user.setId(userId);
-        user.setUserName(userName);
+        user.setId(id);
+        user.setUserId(userId);
 
         PostEntity result = new PostEntity();
         result.setUser(user);

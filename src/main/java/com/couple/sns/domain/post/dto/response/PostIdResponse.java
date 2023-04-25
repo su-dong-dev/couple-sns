@@ -8,7 +8,7 @@ import lombok.Getter;
 public class PostIdResponse {
 
     private Long postId;
-    private String userName;
+    private String userId;
 
 }
 

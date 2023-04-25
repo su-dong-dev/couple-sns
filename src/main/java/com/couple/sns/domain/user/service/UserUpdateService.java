@@ -26,32 +26,32 @@ public class UserUpdateService {
     private final JwtProperties jwtProperties;
 
     @Transactional
-    public User join(String userName, String password) {
-        userRepository.findByUserName(userName).ifPresent(it -> {
-            throw new SnsApplicationException(ErrorCode.DUPLICATED_USER_NAME,
-                String.format("%s is duplicated", userName));
+    public User join(String userId, String password) {
+        userRepository.findByUserId(userId).ifPresent(it -> {
+            throw new SnsApplicationException(ErrorCode.DUPLICATED_USER_ID,
+                String.format("%s is duplicated", userId));
         });
 
         UserEntity userEntity = userRepository.save(
-            UserEntity.toEntity(userName, encoder.encode(password)));
+            UserEntity.toEntity(userId, encoder.encode(password)));
 
         return User.fromEntity(userEntity);
     }
 
-    public UserTokenResponse login(String userName, String password) {
-        UserEntity user = userRepository.findByUserName(userName)
+    public UserTokenResponse login(String userId, String password) {
+        UserEntity user = userRepository.findByUserId(userId)
             .orElseThrow(() -> {
                 throw new SnsApplicationException(ErrorCode.USER_NOT_FOUND,
-                    String.format("%s not founded", userName));
+                    String.format("%s not founded", userId));
             });
 
         if (!encoder.matches(password, user.getPassword())) {
             throw new SnsApplicationException(ErrorCode.INVALID_PASSWORD);
         }
 
-        String token = JwtTokenUtils.createToken(userName, user.getRole(),
+        String token = JwtTokenUtils.createToken(userId, user.getRole(),
             jwtProperties.getSecretKey(), jwtProperties.getExpiredTimeMs());
-        String refreshToken = JwtTokenUtils.createRefreshToken(userName, jwtProperties.getSecretKey(),
+        String refreshToken = JwtTokenUtils.createRefreshToken(userId, jwtProperties.getSecretKey(),
             jwtProperties.getExpiredTimeMs());
 
         tokenRepository.save(TokenEntity.toEntity(refreshToken, user));
@@ -61,12 +61,12 @@ public class UserUpdateService {
 
     @Transactional
     public UserTokenResponse reissue(String token) {
-        String userName = JwtTokenUtils.getUserName(token, jwtProperties.getSecretKey());
+        String userId = JwtTokenUtils.getUserId(token, jwtProperties.getSecretKey());
 
-        UserEntity userEntity = userRepository.findByUserName(userName)
+        UserEntity userEntity = userRepository.findByUserId(userId)
             .orElseThrow(() -> {
                 throw new SnsApplicationException(ErrorCode.USER_NOT_FOUND,
-                    String.format("%s not founded", userName));
+                    String.format("%s not founded", userId));
             });
 
         TokenEntity tokenEntity = tokenRepository.findByRefreshToken(token).orElseThrow(() -> {
@@ -74,9 +74,9 @@ public class UserUpdateService {
                 String.format("%s not founded ", token));
         });
 
-        String accessToken = JwtTokenUtils.createToken(userName, userEntity.getRole(),
+        String accessToken = JwtTokenUtils.createToken(userId, userEntity.getRole(),
             jwtProperties.getSecretKey(), jwtProperties.getExpiredTimeMs());
-        String refreshToken = JwtTokenUtils.createRefreshToken(userName, jwtProperties.getSecretKey(),
+        String refreshToken = JwtTokenUtils.createRefreshToken(userId, jwtProperties.getSecretKey(),
             jwtProperties.getExpiredTimeMs());
 
         tokenRepository.delete(tokenEntity);
