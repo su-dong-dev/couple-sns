@@ -45,7 +45,7 @@ public class LikeEntity {
         LikeEntity likeEntity = new LikeEntity();
 
         likeEntity.setId(userEntity.getId());
-        likeEntity.setUserName(userEntity.getUserName());
+        likeEntity.setUserName(userEntity.getUserId());
         likeEntity.setPostId(postEntity.getId());
 
         return likeEntity;

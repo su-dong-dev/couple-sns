@@ -15,7 +15,7 @@ import java.util.List;
 public class User implements UserDetails {
 
     private Long id;
-    private String userName;
+    private String userId;
     private String password;
     private UserRole userRole;
 
@@ -26,7 +26,7 @@ public class User implements UserDetails {
     public static User fromEntity(UserEntity userEntity) {
         return new User(
                 userEntity.getId(),
-                userEntity.getUserName(),
+                userEntity.getUserId(),
                 userEntity.getPassword(),
                 userEntity.getRole(),
                 userEntity.getRegisteredAt(),
@@ -42,7 +42,7 @@ public class User implements UserDetails {
 
     @Override
     public String getUsername() {
-        return this.userName;
+        return this.userId;
     }
 
     @Override

@@ -9,7 +9,7 @@ public class LikeEntityFixture {
         LikeEntity like = new LikeEntity();
         like.setId(likeId);
         like.setUserId(user.getId());
-        like.setUserName(user.getUserName());
+        like.setUserName(user.getUserId());
         like.setPostId(post.getId());
 
         return like;

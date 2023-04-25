@@ -24,7 +24,7 @@ public class UserEntity {
     private Long id;
 
     @Column(unique = true)
-    private String userName;
+    private String userId;
 
     private String password;
 
@@ -41,9 +41,9 @@ public class UserEntity {
     public UserEntity() {
     }
 
-    public static UserEntity toEntity(String userName, String password) {
+    public static UserEntity toEntity(String userId, String password) {
         UserEntity userEntity = new UserEntity();
-        userEntity.setUserName(userName);
+        userEntity.setUserId(userId);
         userEntity.setRole(UserRole.USER);
         userEntity.setPassword(password);
 

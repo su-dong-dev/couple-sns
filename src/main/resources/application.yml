@@ -9,8 +9,8 @@ spring:
     #    password: ${mysql.password}
   jpa:
     hibernate:
-      ddl-auto: update
-    show_sql: true
+      ddl-auto: create
+    show-sql: true
 
 jwt:
   secret-key: project.sns-couple-application-2023-secret_key
@@ -18,15 +18,3 @@ jwt:
   expired-time-ms: 86400000
   # 30 days
   refresh-expired-time-ms: 2592000000
-
-cloud:
-  aws:
-    credentials:
-      access-key: AKIARCSPVP2JX6WCGXFZ
-      secret-key: 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
-    region:
-      static: ap-northeast-2
-    s3:
-      bucket: couple-sns-storage
-    stack:
-      auto: false

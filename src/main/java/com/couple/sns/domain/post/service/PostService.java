@@ -30,26 +30,26 @@ public class PostService {
        return postRepository.findAll(pageable).map(Post::fromEntity);
     }
 
-    public Page<Post> my(String userName, Pageable pageable) {
-        UserEntity user = getUserOrElseThrow(userName);
+    public Page<Post> my(String userId, Pageable pageable) {
+        UserEntity user = getUserOrElseThrow(userId);
         return postRepository.findAllByUser(user, pageable).map(Post::fromEntity);
     }
 
     @Transactional
-    public Post create(String title, String body, String userName) {
-        UserEntity user = getUserOrElseThrow(userName);
+    public Post create(String title, String body, String userId) {
+        UserEntity user = getUserOrElseThrow(userId);
         PostEntity post = postRepository.save(PostEntity.toEntity(title, body, user));
 
         return Post.fromEntity(postRepository.saveAndFlush(post));
     }
 
     @Transactional
-    public Post modify(Long postId, String title, String body, String userName) {
-        UserEntity user = getUserOrElseThrow(userName);
+    public Post modify(Long postId, String title, String body, String userId) {
+        UserEntity user = getUserOrElseThrow(userId);
         PostEntity post = getPostOrElseThrow(postId);
 
         if (post.getUser() != user) {
-            throw new SnsApplicationException(ErrorCode.INVALID_PERMISSION, String.format("%s has no permission with %s", userName, postId));
+            throw new SnsApplicationException(ErrorCode.INVALID_PERMISSION, String.format("%s has no permission with %s", userId, postId));
         }
 
         post.setTitle(title);
@@ -59,23 +59,23 @@ public class PostService {
     }
 
     @Transactional
-    public PostIdResponse delete(Long postId, String userName) {
-        UserEntity user = getUserOrElseThrow(userName);
+    public PostIdResponse delete(Long postId, String userId) {
+        UserEntity user = getUserOrElseThrow(userId);
         PostEntity post = getPostOrElseThrow(postId);
 
         if (post.getUser() != user) {
-            throw new SnsApplicationException(ErrorCode.INVALID_PERMISSION, String.format("%s has no permission with %s", userName, postId));
+            throw new SnsApplicationException(ErrorCode.INVALID_PERMISSION, String.format("%s has no permission with %s", userId, postId));
         }
 
         postRepository.delete(post);
 
-        return new PostIdResponse(postId, userName);
+        return new PostIdResponse(postId, userId);
     }
 
     @Transactional
-    public void like(Long postId, String userName) {
+    public void like(Long postId, String userId) {
         PostEntity post = getPostOrElseThrow(postId);
-        UserEntity user = getUserOrElseThrow(userName);
+        UserEntity user = getUserOrElseThrow(userId);
 
         if (likeRepository.findByPostIdAndUserId(post.getId(), user.getId()).isEmpty()) {
             likeRepository.save(LikeEntity.toEntity(user, post));
@@ -90,10 +90,10 @@ public class PostService {
         return LikeResponse.from(post.getId(), likeRepository.findAllByPostId(post.getId(), pageable).map(Like::fromEntity));
     }
 
-    private UserEntity getUserOrElseThrow(String userName) {
-        return userRepository.findByUserName(userName)
+    private UserEntity getUserOrElseThrow(String userId) {
+        return userRepository.findByUserId(userId)
             .orElseThrow(() -> new SnsApplicationException(ErrorCode.USER_NOT_FOUND,
-                String.format("%s not founded", userName)));
+                String.format("%s not founded", userId)));
     }
 
     private PostEntity getPostOrElseThrow(Long postId) {
