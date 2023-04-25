@@ -24,7 +24,7 @@ public class UserController {
     @PostMapping("/join")
     public Response<UserJoinResponse> join(@RequestBody UserJoinRequest userJoinRequest) {
         User user = userUpdateService.join(
-            userJoinRequest.getUserId(),
+            userJoinRequest.getUserName(),
             userJoinRequest.getPassword());
         return Response.success(UserJoinResponse.fromUser(user));
     }
@@ -32,7 +32,7 @@ public class UserController {
     @PostMapping("/login")
     public Response<UserTokenResponse> login(@RequestBody UserLoginRequest userLoginRequest) {
         return Response.success(
-            userUpdateService.login(userLoginRequest.getUserId(), userLoginRequest.getPassword()));
+            userUpdateService.login(userLoginRequest.getUserName(), userLoginRequest.getPassword()));
     }
 
     @PostMapping("/reissue")

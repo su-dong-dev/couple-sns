@@ -40,12 +40,12 @@ public class JwtTokenFilter extends OncePerRequestFilter {
                 return;
             }
 
-            String userId = JwtTokenUtils.getUserId(token, key);
+            String userName = JwtTokenUtils.getUserName(token, key);
             String role = JwtTokenUtils.getUserRole(token, key);
 
             UsernamePasswordAuthenticationToken authentication =
                     new UsernamePasswordAuthenticationToken(
-                            userId, null, Collections.singleton(new SimpleGrantedAuthority(role))
+                            userName, null, Collections.singleton(new SimpleGrantedAuthority(role))
                     );
 
             authentication.setDetails(new WebAuthenticationDetailsSource().buildDetails(request));
