@@ -102,7 +102,7 @@ public class PostControllerTest {
         String body = "body";
 
         given(postService.create(eq(title), eq(body), any()))
-            .willReturn(Post.fromEntity(PostEntityFixture.get("userId", 1L, 1L, title, body)));
+            .willReturn(Post.fromEntity(PostEntityFixture.get("userName", 1L, 1L, title, body)));
 
         mockMvc.perform(post("/api/v1/posts")
                 .contentType(MediaType.APPLICATION_JSON)
@@ -133,7 +133,7 @@ public class PostControllerTest {
         String body = "modify_body";
 
         given(postService.modify(any(),any(), any(), any()))
-            .willReturn(Post.fromEntity(PostEntityFixture.get("userId", 1L, 1L, title, body)));
+            .willReturn(Post.fromEntity(PostEntityFixture.get("userName", 1L, 1L, title, body)));
 
         mockMvc.perform(put("/api/v1/posts/1")
                 .contentType(MediaType.APPLICATION_JSON)
@@ -151,7 +151,7 @@ public class PostControllerTest {
 
         mockMvc.perform(delete("/api/v1/posts/1")
                 .contentType(MediaType.APPLICATION_JSON)
-                .content(objectMapper.writeValueAsBytes(new PostIdResponse(1L, "userId")))
+                .content(objectMapper.writeValueAsBytes(new PostIdResponse(1L, "userName")))
             ).andDo(print())
             .andExpect(status().isOk());
     }

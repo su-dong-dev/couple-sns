@@ -9,12 +9,12 @@ import lombok.Getter;
 public class UserJoinResponse {
 
     private Long id;
-    private String userId;
+    private String userName;
 
     public static UserJoinResponse fromUser(User user) {
         return new UserJoinResponse(
                 user.getId(),
-                user.getUserId()
+                user.getUsername()
         );
     }
 

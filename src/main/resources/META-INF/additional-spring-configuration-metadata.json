@@ -1,0 +1,12 @@
+{
+  "properties": [
+    {
+      "name": "aws.accessKey",
+      "type": "java.lang.String"
+    },
+    {
+      "name": "aws.secretKey",
+      "type": "java.lang.String"
+    }
+  ]
+}

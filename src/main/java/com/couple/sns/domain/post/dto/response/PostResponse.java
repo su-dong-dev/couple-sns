@@ -10,7 +10,7 @@ import lombok.Getter;
 public class PostResponse {
 
     private Long postId;
-    private String userId;
+    private String userName;
     private String title;
     private String body;
     private LocalDateTime registeredAt;
@@ -21,7 +21,7 @@ public class PostResponse {
     public static PostResponse fromPost(Post post) {
         return new PostResponse(
             post.getId(),
-            post.getUser().getUserId(),
+            post.getUser().getUsername(),
             post.getTitle(),
             post.getBody(),
             post.getRegisteredAt(),
