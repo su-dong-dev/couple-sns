@@ -32,7 +32,7 @@ public class CommentController {
         return Response.success(commentService.create(authentication.getName(), postId, content));
     }
 
-    @DeleteMapping("/{commentId}")
+    @DeleteMapping("/comment/{commentId}")
     public Response<Void> delete(Authentication authentication, @PathVariable Long commentId) {
         commentService.delete(authentication.getName(), commentId);
         return Response.success();
