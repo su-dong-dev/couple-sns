@@ -2,6 +2,7 @@ package com.couple.sns.domain.post.controller;
 
 import com.couple.sns.common.responce.Response;
 import com.couple.sns.domain.post.dto.response.CommentResponse;
+import com.couple.sns.domain.post.dto.response.LikeResponse;
 import com.couple.sns.domain.post.service.CommentService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
@@ -36,5 +37,16 @@ public class CommentController {
     public Response<Void> delete(Authentication authentication, @PathVariable Long commentId) {
         commentService.delete(authentication.getName(), commentId);
         return Response.success();
+    }
+
+    @PostMapping("/comment/{commendId}/likes")
+    public Response<String> like(@PathVariable Long commendId, Authentication authentication) {
+        String isLiked = commentService.like(commendId, authentication.getName());
+        return Response.success(isLiked);
+    }
+
+    @GetMapping("/comment/{commendId}/likes")
+    public Response<LikeResponse> likeList(@PathVariable Long commendId, Pageable pageable) {
+        return Response.success(commentService.likeList(commendId, pageable));
     }
 }

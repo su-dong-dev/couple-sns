@@ -1,5 +1,6 @@
 package com.couple.sns.domain.post.persistance.repository;
 
+import com.couple.sns.domain.post.dto.LikeType;
 import com.couple.sns.domain.post.persistance.LikeEntity;
 import java.util.Optional;
 import org.springframework.data.domain.Page;
@@ -10,7 +11,8 @@ import org.springframework.stereotype.Repository;
 @Repository
 public interface LikeRepository extends JpaRepository<LikeEntity, Long> {
 
-    Optional<LikeEntity> findByPostIdAndUserId(Long postId, Long userId);
+    Optional<LikeEntity> findByTypeAndTypeIdAndUserId(LikeType type, Long typeId, Long userId);
 
-    Page<LikeEntity> findAllByPostId(Long postId, Pageable pageable);
+    Page<LikeEntity> findAllByTypeAndTypeId(LikeType type, Long typeId, Pageable pageable);
+
 }

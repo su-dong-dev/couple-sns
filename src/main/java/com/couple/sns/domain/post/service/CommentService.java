@@ -3,10 +3,15 @@ package com.couple.sns.domain.post.service;
 import com.couple.sns.common.exception.ErrorCode;
 import com.couple.sns.common.exception.SnsApplicationException;
 import com.couple.sns.domain.post.dto.Comment;
+import com.couple.sns.domain.post.dto.Like;
+import com.couple.sns.domain.post.dto.LikeType;
 import com.couple.sns.domain.post.dto.response.CommentResponse;
+import com.couple.sns.domain.post.dto.response.LikeResponse;
 import com.couple.sns.domain.post.persistance.CommentEntity;
+import com.couple.sns.domain.post.persistance.LikeEntity;
 import com.couple.sns.domain.post.persistance.PostEntity;
 import com.couple.sns.domain.post.persistance.repository.CommentRepository;
+import com.couple.sns.domain.post.persistance.repository.LikeRepository;
 import com.couple.sns.domain.post.persistance.repository.PostRepository;
 import com.couple.sns.domain.user.persistance.UserEntity;
 import com.couple.sns.domain.user.persistance.repository.UserRepository;
@@ -23,6 +28,7 @@ public class CommentService {
     private final UserRepository userRepository;
     private final PostRepository postRepository;
     private final CommentRepository commentRepository;
+    private final LikeRepository likeRepository;
 
     public Page<Comment> list(Long postId, Pageable pageable) {
         return commentRepository.findByPostId(postId, pageable).map(Comment::fromEntity);
@@ -41,15 +47,36 @@ public class CommentService {
     @Transactional
     public void delete(String userName, Long commentId) {
         UserEntity user = getUserOrElseThrow(userName);
-        CommentEntity comment = commentRepository.findById(commentId).orElseThrow(
-            () -> new SnsApplicationException(ErrorCode.COMMENT_NOT_FOUND,
-                "comment not founded"));
+        CommentEntity comment = getCommentOrElseThrow(commentId);
 
         if (comment.getUser() != user) {
             throw new SnsApplicationException(ErrorCode.INVALID_PERMISSION, String.format("%s has no permission with %s", userName, commentId));
         }
 
         commentRepository.delete(comment);
+    }
+
+    @Transactional
+    public String like(Long commentId, String userName) {
+
+        CommentEntity comment = getCommentOrElseThrow(commentId);
+        UserEntity user = getUserOrElseThrow(userName);
+
+        if (likeRepository.findByTypeAndTypeIdAndUserId(LikeType.COMMENT, comment.getId(), user.getId()).isEmpty()) {
+            likeRepository.save(LikeEntity.toEntity(user, comment.getId(), LikeType.COMMENT));
+            return "LIKE";
+        } else {
+            likeRepository.delete(likeRepository.findByTypeAndTypeIdAndUserId(LikeType.COMMENT, comment.getId(), user.getId()).get());
+            return "LIKE_DELETE";
+        }
+    }
+
+    public LikeResponse likeList(Long commendId, Pageable pageable) {
+        PostEntity post = getPostOrElseThrow(commendId);
+
+        return LikeResponse.from(
+            LikeType.COMMENT, post.getId(), likeRepository.findAllByTypeAndTypeId(LikeType.COMMENT, post.getId(), pageable).map(
+            Like::fromEntity));
     }
 
     private UserEntity getUserOrElseThrow(String userName) {
@@ -62,5 +89,11 @@ public class CommentService {
         return postRepository.findById(postId).orElseThrow(
             () -> new SnsApplicationException(ErrorCode.POST_NOT_FOUND,
                 String.format("%s not founded", postId)));
+    }
+
+    private CommentEntity getCommentOrElseThrow(Long commentId) {
+        return commentRepository.findById(commentId).orElseThrow(
+            () -> new SnsApplicationException(ErrorCode.COMMENT_NOT_FOUND,
+                "comment not founded"));
     }
 }

@@ -1,7 +1,10 @@
 package com.couple.sns.domain.post.persistance;
 
+import com.couple.sns.domain.post.dto.LikeType;
 import com.couple.sns.domain.user.persistance.UserEntity;
 import jakarta.persistence.Entity;
+import jakarta.persistence.EnumType;
+import jakarta.persistence.Enumerated;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
@@ -29,7 +32,10 @@ public class LikeEntity {
     private Long userId;
     private String userName;
 
-    private Long postId;
+    private Long typeId;
+
+    @Enumerated(EnumType.STRING)
+    private LikeType type;
 
     @CreationTimestamp
     private LocalDateTime registeredAt;
@@ -41,12 +47,13 @@ public class LikeEntity {
     public LikeEntity() {
     }
 
-    public static LikeEntity toEntity(UserEntity userEntity, PostEntity postEntity) {
+    public static LikeEntity toEntity(UserEntity userEntity, Long typeId, LikeType type) {
         LikeEntity likeEntity = new LikeEntity();
 
-        likeEntity.setId(userEntity.getId());
+        likeEntity.setUserId(userEntity.getId());
         likeEntity.setUserName(userEntity.getUserName());
-        likeEntity.setPostId(postEntity.getId());
+        likeEntity.setTypeId(typeId);
+        likeEntity.setType(type);
 
         return likeEntity;
     }

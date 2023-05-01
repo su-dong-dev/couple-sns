@@ -12,7 +12,7 @@ public class Like {
     private Long id;
     private Long userId;
     private String userName;
-    private Long postId;
+    private Long typeId;
 
     private LocalDateTime registeredAt;
     private LocalDateTime updatedAt;
@@ -23,7 +23,7 @@ public class Like {
             likeEntity.getId(),
             likeEntity.getUserId(),
             likeEntity.getUserName(),
-            likeEntity.getPostId(),
+            likeEntity.getTypeId(),
             likeEntity.getRegisteredAt(),
             likeEntity.getUpdatedAt(),
             likeEntity.getDeletedAt()
