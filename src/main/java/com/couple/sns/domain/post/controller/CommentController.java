@@ -23,29 +23,29 @@ public class CommentController {
 
     private final CommentService commentService;
 
-    @GetMapping("/{postId}/comment")
+    @GetMapping("/{postId}/comments")
     public Response<Page<CommentResponse>> list(@PathVariable Long postId, Pageable pageable) {
         return Response.success(commentService.list(postId, pageable).map(CommentResponse::fromComment));
     }
 
-    @PostMapping("/{postId}/comment")
+    @PostMapping("/{postId}/comments")
     public Response<CommentResponse> comment(Authentication authentication, @PathVariable Long postId, @RequestBody String content) {
         return Response.success(commentService.create(authentication.getName(), postId, content));
     }
 
-    @DeleteMapping("/comment/{commentId}")
+    @DeleteMapping("/comments/{commentId}")
     public Response<Void> delete(Authentication authentication, @PathVariable Long commentId) {
         commentService.delete(authentication.getName(), commentId);
         return Response.success();
     }
 
-    @PostMapping("/comment/{commendId}/likes")
+    @PostMapping("/comments/{commendId}/likes")
     public Response<String> like(@PathVariable Long commendId, Authentication authentication) {
         String isLiked = commentService.like(commendId, authentication.getName());
         return Response.success(isLiked);
     }
 
-    @GetMapping("/comment/{commendId}/likes")
+    @GetMapping("/comments/{commendId}/likes")
     public Response<LikeResponse> likeList(@PathVariable Long commendId, Pageable pageable) {
         return Response.success(commentService.likeList(commendId, pageable));
     }
