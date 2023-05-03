@@ -57,17 +57,17 @@ public class CommentService {
     }
 
     @Transactional
-    public String like(Long commentId, String userName) {
+    public Boolean like(Long commentId, String userName) {
 
         CommentEntity comment = getCommentOrElseThrow(commentId);
         UserEntity user = getUserOrElseThrow(userName);
 
         if (likeRepository.findByTypeAndTypeIdAndUserId(LikeType.COMMENT, comment.getId(), user.getId()).isEmpty()) {
             likeRepository.save(LikeEntity.toEntity(user, comment.getId(), LikeType.COMMENT));
-            return "LIKE";
+            return true;
         } else {
             likeRepository.delete(likeRepository.findByTypeAndTypeIdAndUserId(LikeType.COMMENT, comment.getId(), user.getId()).get());
-            return "LIKE_DELETE";
+            return false;
         }
     }
 

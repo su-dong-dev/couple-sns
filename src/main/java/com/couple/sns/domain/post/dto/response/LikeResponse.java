@@ -24,7 +24,7 @@ public class LikeResponse {
             type,
             typeId,
             likes.getTotalElements(),
-            likes.map(like -> fromUser(like.getUserId(), like.getUserName())).stream().toList()
+            likes.map(like -> fromUser(like.getUser().getId(), like.getUser().getUsername())).stream().toList()
         );
     }
 }

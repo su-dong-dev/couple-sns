@@ -5,9 +5,12 @@ import com.couple.sns.domain.user.persistance.UserEntity;
 import jakarta.persistence.Entity;
 import jakarta.persistence.EnumType;
 import jakarta.persistence.Enumerated;
+import jakarta.persistence.FetchType;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
+import jakarta.persistence.JoinColumn;
+import jakarta.persistence.ManyToOne;
 import jakarta.persistence.Table;
 import java.time.LocalDateTime;
 import lombok.Getter;
@@ -29,8 +32,9 @@ public class LikeEntity {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    private Long userId;
-    private String userName;
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "user_id")
+    private UserEntity user;
 
     private Long typeId;
 
@@ -50,8 +54,7 @@ public class LikeEntity {
     public static LikeEntity toEntity(UserEntity userEntity, Long typeId, LikeType type) {
         LikeEntity likeEntity = new LikeEntity();
 
-        likeEntity.setUserId(userEntity.getId());
-        likeEntity.setUserName(userEntity.getUserName());
+        likeEntity.setUser(userEntity);
         likeEntity.setTypeId(typeId);
         likeEntity.setType(type);
 

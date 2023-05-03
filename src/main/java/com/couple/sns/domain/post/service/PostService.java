@@ -74,17 +74,17 @@ public class PostService {
     }
 
     @Transactional
-    public String like(Long postId, String userName) {
+    public Boolean like(Long postId, String userName) {
 
         PostEntity post = getPostOrElseThrow(postId);
         UserEntity user = getUserOrElseThrow(userName);
 
         if (likeRepository.findByTypeAndTypeIdAndUserId(LikeType.POST, post.getId(), user.getId()).isEmpty()) {
             likeRepository.save(LikeEntity.toEntity(user, post.getId(), LikeType.POST));
-            return "LIKE";
+            return true;
         } else {
             likeRepository.delete(likeRepository.findByTypeAndTypeIdAndUserId(LikeType.POST, post.getId(), user.getId()).get());
-            return "LIKE_DELETE";
+            return false;
         }
     }
 

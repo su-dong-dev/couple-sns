@@ -40,9 +40,8 @@ public class CommentController {
     }
 
     @PostMapping("/comments/{commendId}/likes")
-    public Response<String> like(@PathVariable Long commendId, Authentication authentication) {
-        String isLiked = commentService.like(commendId, authentication.getName());
-        return Response.success(isLiked);
+    public Response<Boolean> like(@PathVariable Long commendId, Authentication authentication) {
+        return Response.success(commentService.like(commendId, authentication.getName()));
     }
 
     @GetMapping("/comments/{commendId}/likes")
