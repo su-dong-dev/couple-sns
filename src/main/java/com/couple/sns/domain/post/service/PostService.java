@@ -3,6 +3,7 @@ package com.couple.sns.domain.post.service;
 import com.couple.sns.common.exception.ErrorCode;
 import com.couple.sns.common.exception.SnsApplicationException;
 import com.couple.sns.domain.post.dto.Like;
+import com.couple.sns.domain.post.dto.LikeType;
 import com.couple.sns.domain.post.dto.Post;
 import com.couple.sns.domain.post.dto.response.LikeResponse;
 import com.couple.sns.domain.post.dto.response.PostIdResponse;
@@ -73,21 +74,25 @@ public class PostService {
     }
 
     @Transactional
-    public void like(Long postId, String userName) {
+    public Boolean like(Long postId, String userName) {
+
         PostEntity post = getPostOrElseThrow(postId);
         UserEntity user = getUserOrElseThrow(userName);
 
-        if (likeRepository.findByPostIdAndUserId(post.getId(), user.getId()).isEmpty()) {
-            likeRepository.save(LikeEntity.toEntity(user, post));
+        if (likeRepository.findByTypeAndTypeIdAndUserId(LikeType.POST, post.getId(), user.getId()).isEmpty()) {
+            likeRepository.save(LikeEntity.toEntity(user, post.getId(), LikeType.POST));
+            return true;
         } else {
-            likeRepository.delete(likeRepository.findByPostIdAndUserId(post.getId(), user.getId()).get());
+            likeRepository.delete(likeRepository.findByTypeAndTypeIdAndUserId(LikeType.POST, post.getId(), user.getId()).get());
+            return false;
         }
     }
 
     public LikeResponse likeList(Long postId, Pageable pageable) {
         PostEntity post = getPostOrElseThrow(postId);
 
-        return LikeResponse.from(post.getId(), likeRepository.findAllByPostId(post.getId(), pageable).map(Like::fromEntity));
+        return LikeResponse.from(
+            LikeType.POST, post.getId(), likeRepository.findAllByTypeAndTypeId(LikeType.POST, post.getId(), pageable).map(Like::fromEntity));
     }
 
     private UserEntity getUserOrElseThrow(String userName) {

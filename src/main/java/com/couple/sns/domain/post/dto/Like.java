@@ -1,6 +1,7 @@
 package com.couple.sns.domain.post.dto;
 
 import com.couple.sns.domain.post.persistance.LikeEntity;
+import com.couple.sns.domain.user.dto.User;
 import java.time.LocalDateTime;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -10,9 +11,8 @@ import lombok.Getter;
 public class Like {
 
     private Long id;
-    private Long userId;
-    private String userName;
-    private Long postId;
+    private User user;
+    private Long typeId;
 
     private LocalDateTime registeredAt;
     private LocalDateTime updatedAt;
@@ -21,9 +21,8 @@ public class Like {
     public static Like fromEntity(LikeEntity likeEntity) {
         return new Like(
             likeEntity.getId(),
-            likeEntity.getUserId(),
-            likeEntity.getUserName(),
-            likeEntity.getPostId(),
+            User.fromEntity(likeEntity.getUser()),
+            likeEntity.getTypeId(),
             likeEntity.getRegisteredAt(),
             likeEntity.getUpdatedAt(),
             likeEntity.getDeletedAt()

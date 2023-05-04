@@ -13,6 +13,7 @@ import com.couple.sns.common.exception.SnsApplicationException;
 import com.couple.sns.domain.common.fixture.LikeEntityFixture;
 import com.couple.sns.domain.common.fixture.PostEntityFixture;
 import com.couple.sns.domain.common.fixture.UserEntityFixture;
+import com.couple.sns.domain.post.dto.LikeType;
 import com.couple.sns.domain.post.persistance.LikeEntity;
 import com.couple.sns.domain.post.persistance.PostEntity;
 import com.couple.sns.domain.post.persistance.repository.LikeRepository;
@@ -214,7 +215,7 @@ public class PostServiceTest {
 
         given(userRepository.findByUserName(userName)).willReturn(Optional.of(userEntity));
         given(postRepository.findById(postId)).willReturn(Optional.of(postEntity));
-        given(likeRepository.findByPostIdAndUserId(postEntity.getId(), userEntity.getId())).willReturn(Optional.empty());
+        given(likeRepository.findByTypeAndTypeIdAndUserId(LikeType.POST, postEntity.getId(), userEntity.getId())).willReturn(Optional.empty());
         given(likeRepository.save(any())).willReturn(any(LikeEntity.class));
 
         // when
@@ -223,7 +224,7 @@ public class PostServiceTest {
         // then
         then(userRepository).should().findByUserName(any(String.class));
         then(postRepository).should().findById(any(Long.class));
-        then(likeRepository).should().findByPostIdAndUserId(any(Long.class), any(Long.class));
+        then(likeRepository).should().findByTypeAndTypeIdAndUserId(any(), any(Long.class), any(Long.class));
         then(likeRepository).should().save(any(LikeEntity.class));
     }
 
@@ -233,11 +234,11 @@ public class PostServiceTest {
         PostEntity postEntity = getPostEntity(userName, title, body);
         UserEntity userEntity = getUserEntity(userName, password);
 
-        LikeEntity likeEntity = getLikeEntity(likeId, userEntity, postEntity);
+        LikeEntity likeEntity = getLikeEntity(likeId, userEntity, postEntity.getId(), LikeType.POST);
 
         given(userRepository.findByUserName(userName)).willReturn(Optional.of(userEntity));
         given(postRepository.findById(postId)).willReturn(Optional.of(postEntity));
-        given(likeRepository.findByPostIdAndUserId(postEntity.getId(), userEntity.getId())).willReturn(Optional.of(likeEntity));
+        given(likeRepository.findByTypeAndTypeIdAndUserId(LikeType.POST, postEntity.getId(), userEntity.getId())).willReturn(Optional.of(likeEntity));
 
         // when
         postService.like(postId, userName);
@@ -255,14 +256,14 @@ public class PostServiceTest {
         PostEntity postEntity = getPostEntity(userName, title, body);
 
         given(postRepository.findById(postEntity.getId())).willReturn(Optional.of(postEntity));
-        given(likeRepository.findAllByPostId(eq(postId), any(Pageable.class))).willReturn(Page.empty());
+        given(likeRepository.findAllByTypeAndTypeId(eq(LikeType.POST), eq(postId), any(Pageable.class))).willReturn(Page.empty());
 
         // when
         postService.likeList(postId, pageable);
 
         // then
         then(postRepository).should().findById(any(Long.class));
-        then(likeRepository).should().findAllByPostId(any(Long.class), any(Pageable.class));
+        then(likeRepository).should().findAllByTypeAndTypeId(any(), any(Long.class), any(Pageable.class));
     }
 
 
@@ -274,8 +275,8 @@ public class PostServiceTest {
         return PostEntityFixture.get(userName, postId, 1L, title, body);
     }
 
-    private LikeEntity getLikeEntity(Long likeId, UserEntity user, PostEntity post) {
-        return LikeEntityFixture.get(likeId, user, post);
+    private LikeEntity getLikeEntity(Long likeId, UserEntity user, Long typeId, LikeType type) {
+        return LikeEntityFixture.get(likeId, user, typeId, type);
     }
 
 }
