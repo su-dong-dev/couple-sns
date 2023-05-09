@@ -8,8 +8,7 @@ public class LikeEntityFixture {
     public static LikeEntity get(Long likeId, UserEntity user, Long typeId, LikeType type) {
         LikeEntity like = new LikeEntity();
         like.setId(likeId);
-        like.setUserId(user.getId());
-        like.setUserName(user.getUserName());
+        like.setUser(user);
         like.setTypeId(typeId);
         like.setType(type);
 

@@ -139,7 +139,7 @@ public class CommentServiceTest {
 
         given(userRepository.findByUserName(userName)).willReturn(Optional.of(userEntity));
         given(commentRepository.findById(commentId)).willReturn(Optional.of(commentEntity));
-        given(likeRepository.findByTypeAndTypeIdAndUserId(LikeType.COMMENT, commentEntity.getId(), userEntity.getId())).willReturn(Optional.empty());
+        given(likeRepository.findByTypeAndTypeIdAndUser_Id(LikeType.COMMENT, commentEntity.getId(), userEntity.getId())).willReturn(Optional.empty());
         given(likeRepository.save(any())).willReturn(any(LikeEntity.class));
 
         // when
@@ -148,7 +148,7 @@ public class CommentServiceTest {
         // then
         then(userRepository).should().findByUserName(any(String.class));
         then(commentRepository).should().findById(any(Long.class));
-        then(likeRepository).should().findByTypeAndTypeIdAndUserId(any(), any(Long.class), any(Long.class));
+        then(likeRepository).should().findByTypeAndTypeIdAndUser_Id(any(), any(Long.class), any(Long.class));
         then(likeRepository).should().save(any(LikeEntity.class));
     }
 
@@ -162,7 +162,7 @@ public class CommentServiceTest {
 
         given(userRepository.findByUserName(userName)).willReturn(Optional.of(userEntity));
         given(commentRepository.findById(commentId)).willReturn(Optional.of(commentEntity));
-        given(likeRepository.findByTypeAndTypeIdAndUserId(LikeType.COMMENT, commentEntity.getId(), userEntity.getId())).willReturn(Optional.of(likeEntity));
+        given(likeRepository.findByTypeAndTypeIdAndUser_Id(LikeType.COMMENT, commentEntity.getId(), userEntity.getId())).willReturn(Optional.of(likeEntity));
 
         // when
         commentService.like(commentId, userName);

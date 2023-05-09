@@ -62,21 +62,19 @@ public class CommentService {
         CommentEntity comment = getCommentOrElseThrow(commentId);
         UserEntity user = getUserOrElseThrow(userName);
 
-        if (likeRepository.findByTypeAndTypeIdAndUserId(LikeType.COMMENT, comment.getId(), user.getId()).isEmpty()) {
+        if (likeRepository.findByTypeAndTypeIdAndUser_Id(LikeType.COMMENT, comment.getId(), user.getId()).isEmpty()) {
             likeRepository.save(LikeEntity.toEntity(user, comment.getId(), LikeType.COMMENT));
             return true;
         } else {
-            likeRepository.delete(likeRepository.findByTypeAndTypeIdAndUserId(LikeType.COMMENT, comment.getId(), user.getId()).get());
+            likeRepository.delete(likeRepository.findByTypeAndTypeIdAndUser_Id(LikeType.COMMENT, comment.getId(), user.getId()).get());
             return false;
         }
     }
 
     public LikeResponse likeList(Long commendId, Pageable pageable) {
-        PostEntity post = getPostOrElseThrow(commendId);
+        CommentEntity comment = getCommentOrElseThrow(commendId);
 
-        return LikeResponse.from(
-            LikeType.COMMENT, post.getId(), likeRepository.findAllByTypeAndTypeId(LikeType.COMMENT, post.getId(), pageable).map(
-            Like::fromEntity));
+        return LikeResponse.from(comment.getId(), likeRepository.findAllByTypeAndTypeId(LikeType.COMMENT, comment.getId(), pageable).map(Like::fromEntity));
     }
 
     private UserEntity getUserOrElseThrow(String userName) {

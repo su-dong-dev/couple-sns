@@ -79,11 +79,11 @@ public class PostService {
         PostEntity post = getPostOrElseThrow(postId);
         UserEntity user = getUserOrElseThrow(userName);
 
-        if (likeRepository.findByTypeAndTypeIdAndUserId(LikeType.POST, post.getId(), user.getId()).isEmpty()) {
+        if (likeRepository.findByTypeAndTypeIdAndUser_Id(LikeType.POST, post.getId(), user.getId()).isEmpty()) {
             likeRepository.save(LikeEntity.toEntity(user, post.getId(), LikeType.POST));
             return true;
         } else {
-            likeRepository.delete(likeRepository.findByTypeAndTypeIdAndUserId(LikeType.POST, post.getId(), user.getId()).get());
+            likeRepository.delete(likeRepository.findByTypeAndTypeIdAndUser_Id(LikeType.POST, post.getId(), user.getId()).get());
             return false;
         }
     }
@@ -91,8 +91,7 @@ public class PostService {
     public LikeResponse likeList(Long postId, Pageable pageable) {
         PostEntity post = getPostOrElseThrow(postId);
 
-        return LikeResponse.from(
-            LikeType.POST, post.getId(), likeRepository.findAllByTypeAndTypeId(LikeType.POST, post.getId(), pageable).map(Like::fromEntity));
+        return LikeResponse.from(post.getId(), likeRepository.findAllByTypeAndTypeId(LikeType.POST, post.getId(), pageable).map(Like::fromEntity));
     }
 
     private UserEntity getUserOrElseThrow(String userName) {

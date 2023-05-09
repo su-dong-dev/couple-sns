@@ -13,15 +13,13 @@ import org.springframework.data.domain.Page;
 @AllArgsConstructor
 public class LikeResponse {
 
-    private LikeType type;
     private Long typeId;
     private Long count;
     private List<UserLikeResponse> users;
 
 
-    public static LikeResponse from(LikeType type, Long typeId, Page<Like> likes) {
+    public static LikeResponse from(Long typeId, Page<Like> likes) {
         return new LikeResponse(
-            type,
             typeId,
             likes.getTotalElements(),
             likes.map(like -> fromUser(like.getUser().getId(), like.getUser().getUsername())).stream().toList()
