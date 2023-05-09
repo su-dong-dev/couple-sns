@@ -14,7 +14,6 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import com.couple.sns.common.exception.ErrorCode;
 import com.couple.sns.common.exception.SnsApplicationException;
 import com.couple.sns.domain.common.fixture.PostEntityFixture;
-import com.couple.sns.domain.post.dto.LikeType;
 import com.couple.sns.domain.post.dto.Post;
 import com.couple.sns.domain.post.dto.request.PostCreateRequest;
 import com.couple.sns.domain.post.dto.request.PostModifyRequest;
@@ -41,11 +40,16 @@ import org.springframework.test.web.servlet.MockMvc;
 @AutoConfigureMockMvc
 public class PostControllerTest {
 
-    @Autowired private MockMvc mockMvc;
-    @Autowired private ObjectMapper objectMapper;
+    private final MockMvc mockMvc;
+    private final ObjectMapper objectMapper;
 
     @MockBean
     private PostService postService;
+
+    public PostControllerTest(@Autowired MockMvc mvc, @Autowired ObjectMapper objectMapper) {
+        this.mockMvc = mvc;
+        this.objectMapper = objectMapper;
+    }
 
     @Test
     @WithMockUser(authorities = "USER")
@@ -136,7 +140,7 @@ public class PostControllerTest {
         given(postService.modify(any(),any(), any(), any()))
             .willReturn(Post.fromEntity(PostEntityFixture.get("userName", 1L, 1L, title, body)));
 
-        mockMvc.perform(put("/api/v1/posts/1")
+        mockMvc.perform(put( "/api/v1/posts/1")
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(objectMapper.writeValueAsBytes(new PostModifyRequest(title, body)))
             ).andDo(print())
@@ -197,12 +201,11 @@ public class PostControllerTest {
         Long pageSize = 1L;
         List<UserLikeResponse> users = new ArrayList<>();
 
-        given(postService.likeList(eq(postId),any(Pageable.class))).willReturn(new LikeResponse(
-            LikeType.POST, postId, pageSize, users));
+        given(postService.likeList(eq(postId),any(Pageable.class))).willReturn(new LikeResponse(postId, pageSize, users));
 
         mockMvc.perform(get("/api/v1/posts/1/likes")
                 .contentType(MediaType.APPLICATION_JSON)
-                .content(objectMapper.writeValueAsBytes(new LikeResponse(LikeType.POST, 1L, 1L, users)))
+                .content(objectMapper.writeValueAsBytes(new LikeResponse( 1L, 1L, users)))
             ).andDo(print())
             .andExpect(status().isOk());
     }
