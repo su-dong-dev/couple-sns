@@ -224,7 +224,7 @@ public class PostServiceTest {
         // then
         then(userRepository).should().findByUserName(any(String.class));
         then(postRepository).should().findById(any(Long.class));
-        then(likeRepository).should().findByTypeAndTypeIdAndUserId(any(), any(Long.class), any(Long.class));
+        then(likeRepository).should().findByTypeAndTypeIdAndUserId(any(), any(), any());
         then(likeRepository).should().save(any(LikeEntity.class));
     }
 
