@@ -72,10 +72,10 @@ public class CommentService {
     }
 
     public LikeResponse likeList(Long commendId, Pageable pageable) {
-        PostEntity post = getPostOrElseThrow(commendId);
+        CommentEntity comment = getCommentOrElseThrow(commendId);
 
         return LikeResponse.from(
-            LikeType.COMMENT, post.getId(), likeRepository.findAllByTypeAndTypeId(LikeType.COMMENT, post.getId(), pageable).map(
+            LikeType.COMMENT, comment.getId(), likeRepository.findAllByTypeAndTypeId(LikeType.COMMENT, comment.getId(), pageable).map(
             Like::fromEntity));
     }
 
