@@ -48,11 +48,11 @@ public class PostServiceTest {
     public void 전체_포스트_목록_요청이_성공한_경우() {
         Pageable pageable = mock(Pageable.class);
 
-        given(postRepository.findAll(pageable)).willReturn(Page.empty());
+        given(postRepository.findAllJoinFetch(pageable)).willReturn(Page.empty());
 
         postService.list(pageable);
 
-        then(postRepository).should().findAll(any(Pageable.class));
+        then(postRepository).should().findAllJoinFetch(any(Pageable.class));
     }
 
     @Test

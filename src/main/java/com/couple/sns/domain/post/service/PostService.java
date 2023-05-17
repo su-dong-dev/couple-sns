@@ -28,7 +28,7 @@ public class PostService {
     private final LikeRepository likeRepository;
 
     public Page<Post> list(Pageable pageable) {
-       return postRepository.findAll(pageable).map(Post::fromEntity);
+       return postRepository.findAllJoinFetch(pageable).map(Post::fromEntity);
     }
 
     public Page<Post> my(String userName, Pageable pageable) {
