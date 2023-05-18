@@ -25,11 +25,10 @@ public class UserEntity {
 
     @Column(unique = true)
     private String userName;
-
     private String password;
 
     @Enumerated(EnumType.STRING)
-    private UserRole role = UserRole.USER;
+    private UserRole role;
 
     @CreationTimestamp
     private LocalDateTime registeredAt;
@@ -38,15 +37,16 @@ public class UserEntity {
     private LocalDateTime updatedAt;
     private LocalDateTime deletedAt;
 
-    public UserEntity() {
+    protected UserEntity() {
     }
 
-    public static UserEntity toEntity(String userName, String password) {
-        UserEntity userEntity = new UserEntity();
-        userEntity.setUserName(userName);
-        userEntity.setRole(UserRole.USER);
-        userEntity.setPassword(password);
+    private UserEntity(String userName, String password, UserRole role) {
+        this.userName = userName;
+        this.password = password;
+        this.role = role;
+    }
 
-        return userEntity;
+    public static UserEntity of(String userName, String password, UserRole role) {
+        return new UserEntity(userName, password, role);
     }
 }

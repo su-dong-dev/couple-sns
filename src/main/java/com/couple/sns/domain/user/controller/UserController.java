@@ -25,7 +25,8 @@ public class UserController {
     public Response<UserJoinResponse> join(@RequestBody UserJoinRequest userJoinRequest) {
         User user = userUpdateService.join(
             userJoinRequest.getUserName(),
-            userJoinRequest.getPassword());
+            userJoinRequest.getPassword(),
+            userJoinRequest.getRole());
         return Response.success(UserJoinResponse.fromUser(user));
     }
 

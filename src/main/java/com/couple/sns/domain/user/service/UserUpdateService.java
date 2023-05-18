@@ -1,10 +1,9 @@
 package com.couple.sns.domain.user.service;
 
 import com.couple.sns.common.configuration.util.JwtTokenUtils;
-import com.couple.sns.common.exception.ErrorCode;
-import com.couple.sns.common.exception.SnsApplicationException;
 import com.couple.sns.common.property.JwtProperties;
 import com.couple.sns.domain.user.dto.User;
+import com.couple.sns.domain.user.dto.UserRole;
 import com.couple.sns.domain.user.dto.response.UserTokenResponse;
 import com.couple.sns.domain.user.persistance.TokenEntity;
 import com.couple.sns.domain.user.persistance.UserEntity;
@@ -26,14 +25,13 @@ public class UserUpdateService {
     private final JwtProperties jwtProperties;
 
     @Transactional
-    public User join(String userName, String password) {
+    public User join(String userName, String password, UserRole role) {
         userRepository.findByUserName(userName).ifPresent(it -> {
-            throw new SnsApplicationException(ErrorCode.DUPLICATED_USER_NAME,
-                String.format("%s is duplicated", userName));
+            throw new IllegalStateException("이미 존재하는 아이디입니다.");
         });
 
         UserEntity userEntity = userRepository.save(
-            UserEntity.toEntity(userName, encoder.encode(password)));
+            UserEntity.of(userName, encoder.encode(password), role));
 
         return User.fromEntity(userEntity);
     }
@@ -41,12 +39,11 @@ public class UserUpdateService {
     public UserTokenResponse login(String userName, String password) {
         UserEntity user = userRepository.findByUserName(userName)
             .orElseThrow(() -> {
-                throw new SnsApplicationException(ErrorCode.USER_NOT_FOUND,
-                    String.format("%s not founded", userName));
+                throw new IllegalArgumentException("가입된 아이디를 찾을 수 없습니다.");
             });
 
         if (!encoder.matches(password, user.getPassword())) {
-            throw new SnsApplicationException(ErrorCode.INVALID_PASSWORD);
+            throw new IllegalArgumentException("비밀번호가 틀렸습니다.");
         }
 
         String token = JwtTokenUtils.createToken(userName, user.getRole(),
@@ -65,13 +62,12 @@ public class UserUpdateService {
 
         UserEntity userEntity = userRepository.findByUserName(userName)
             .orElseThrow(() -> {
-                throw new SnsApplicationException(ErrorCode.USER_NOT_FOUND,
-                    String.format("%s not founded", userName));
+                throw new IllegalStateException("가입된 아이디를 찾을 수 없습니다.");
             });
 
-        TokenEntity tokenEntity = tokenRepository.findByRefreshToken(token).orElseThrow(() -> {
-            throw new SnsApplicationException(ErrorCode.REFRESH_TOKEN_NOT_FOUND,
-                String.format("%s not founded ", token));
+        TokenEntity tokenEntity = tokenRepository.findByRefreshToken(token)
+            .orElseThrow(() -> {
+                throw new IllegalStateException("토근을 찾을 수 없습니다.");
         });
 
         String accessToken = JwtTokenUtils.createToken(userName, userEntity.getRole(),
