@@ -1,8 +1,18 @@
 package com.couple.sns.domain.user.controller;
 
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.BDDMockito.given;
+import static org.mockito.BDDMockito.then;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
+import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
+
 import com.couple.sns.common.exception.ErrorCode;
 import com.couple.sns.common.exception.SnsApplicationException;
 import com.couple.sns.domain.user.dto.User;
+import com.couple.sns.domain.user.dto.UserRole;
 import com.couple.sns.domain.user.dto.request.TokenReIssueRequest;
 import com.couple.sns.domain.user.dto.request.UserJoinRequest;
 import com.couple.sns.domain.user.dto.response.UserTokenResponse;
@@ -16,15 +26,6 @@ import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.http.MediaType;
 import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.test.web.servlet.MockMvc;
-
-import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.BDDMockito.given;
-import static org.mockito.BDDMockito.then;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.when;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
-import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 
 @SpringBootTest
@@ -40,14 +41,15 @@ public class UserControllerTest {
         String userName = "userName";
         String password = "password";
 
-        given(userUpdateService.join(userName,password)).willReturn(mock(User.class));
+
+        given(userUpdateService.join(userName, password, UserRole.USER)).willReturn(mock(User.class));
 
         mockMvc.perform(post("/api/v1/users/join")
                         .contentType(MediaType.APPLICATION_JSON)
-                        .content(objectMapper.writeValueAsBytes(new UserJoinRequest(userName, password)))
+                        .content(objectMapper.writeValueAsBytes(new UserJoinRequest(userName, password, UserRole.USER)))
                 ).andDo(print())
                 .andExpect(status().isOk());
-        then(userUpdateService).should().join(any(String.class),any(String.class));
+        then(userUpdateService).should().join(any(String.class),any(String.class), any(UserRole.class));
     }
 
     @Test
@@ -55,11 +57,11 @@ public class UserControllerTest {
         String userName = "userName";
         String password = "password";
 
-        when(userUpdateService.join(userName, password)).thenThrow(new SnsApplicationException(ErrorCode.DUPLICATED_USER_NAME));
+        when(userUpdateService.join(userName, password, UserRole.USER)).thenThrow(new SnsApplicationException(ErrorCode.DUPLICATED_USER_NAME));
 
         mockMvc.perform(post("/api/v1/users/join")
                         .contentType(MediaType.APPLICATION_JSON)
-                        .content(objectMapper.writeValueAsBytes(new UserJoinRequest(userName, password)))
+                        .content(objectMapper.writeValueAsBytes(new UserJoinRequest(userName, password, UserRole.USER)))
                 ).andDo(print())
                 .andExpect(status().isConflict());
     }
@@ -74,7 +76,7 @@ public class UserControllerTest {
 
         mockMvc.perform(post("/api/v1/users/login")
                         .contentType(MediaType.APPLICATION_JSON)
-                        .content(objectMapper.writeValueAsBytes(new UserJoinRequest(userName, password)))
+                        .content(objectMapper.writeValueAsBytes(new UserJoinRequest(userName, password, UserRole.USER)))
                 ).andDo(print())
                 .andExpect(status().isOk());
     }
@@ -84,13 +86,13 @@ public class UserControllerTest {
         String userName ="userName";
         String password = "password";
 
-        given(userUpdateService.login(userName, password)).willThrow(new SnsApplicationException(ErrorCode.USER_NOT_FOUND));
+        given(userUpdateService.login(userName, password)).willThrow(new IllegalArgumentException());
 
         mockMvc.perform(post("/api/v1/users/login")
                         .contentType(MediaType.APPLICATION_JSON)
-                        .content(objectMapper.writeValueAsBytes(new UserJoinRequest(userName, password)))
+                        .content(objectMapper.writeValueAsBytes(new UserJoinRequest(userName, password, UserRole.USER)))
                 ).andDo(print())
-                .andExpect(status().isNotFound());
+                .andExpect(status().is5xxServerError());
     }
 
     @Test
@@ -102,7 +104,7 @@ public class UserControllerTest {
 
         mockMvc.perform(post("/api/v1/users/login")
                         .contentType(MediaType.APPLICATION_JSON)
-                        .content(objectMapper.writeValueAsBytes(new UserJoinRequest(userName, password)))
+                        .content(objectMapper.writeValueAsBytes(new UserJoinRequest(userName, password, UserRole.USER)))
                 ).andDo(print())
                 .andExpect(status().isUnauthorized());
     }
