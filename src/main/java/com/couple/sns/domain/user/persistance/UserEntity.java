@@ -14,7 +14,10 @@ import java.time.LocalDateTime;
 @Setter
 @Getter
 @Entity
-@Table(name = "user")
+@Table(name = "user", indexes = {
+    @Index(columnList = "userName", unique = true),
+    @Index(columnList = "registeredAt")
+})
 @SQLDelete(sql = "UPDATE user SET deleted_at = NOW() WHERE id = ?")
 @Where(clause = "deleted_at is NULL")
 public class UserEntity {
@@ -23,7 +26,6 @@ public class UserEntity {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @Column(unique = true)
     private String userName;
     private String password;
 
