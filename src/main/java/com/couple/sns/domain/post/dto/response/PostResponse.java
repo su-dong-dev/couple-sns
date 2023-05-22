@@ -15,7 +15,6 @@ public class PostResponse {
     private String body;
     private LocalDateTime registeredAt;
     private LocalDateTime updatedAt;
-    private LocalDateTime deletedAt;
 
 
     public static PostResponse fromPost(Post post) {
@@ -25,8 +24,7 @@ public class PostResponse {
             post.getTitle(),
             post.getBody(),
             post.getRegisteredAt(),
-            post.getUpdatedAt(),
-            post.getDeletedAt()
+            post.getUpdatedAt()
         );
     }
 }
