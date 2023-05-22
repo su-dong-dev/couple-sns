@@ -23,12 +23,12 @@ public class CommentController {
 
     private final CommentService commentService;
 
-    @GetMapping("/{postId}/comments")
+    @GetMapping("/posts/{postId}/comments")
     public Response<Page<CommentResponse>> list(@PathVariable Long postId, Pageable pageable) {
         return Response.success(commentService.list(postId, pageable).map(CommentResponse::fromComment));
     }
 
-    @PostMapping("/{postId}/comments")
+    @PostMapping("/posts/{postId}/comments")
     public Response<CommentResponse> comment(Authentication authentication, @PathVariable Long postId, @RequestBody String content) {
         return Response.success(commentService.create(authentication.getName(), postId, content));
     }
@@ -39,13 +39,13 @@ public class CommentController {
         return Response.success();
     }
 
-    @PostMapping("/comments/{commendId}/likes")
-    public Response<Boolean> like(@PathVariable Long commendId, Authentication authentication) {
-        return Response.success(commentService.like(commendId, authentication.getName()));
+    @PostMapping("/comments/{commentId}/likes")
+    public Response<Boolean> like(@PathVariable Long commentId, Authentication authentication) {
+        return Response.success(commentService.like(commentId, authentication.getName()));
     }
 
-    @GetMapping("/comments/{commendId}/likes")
-    public Response<LikeResponse> likeList(@PathVariable Long commendId, Pageable pageable) {
-        return Response.success(commentService.likeList(commendId, pageable));
+    @GetMapping("/comments/{commentId}/likes")
+    public Response<LikeResponse> likeList(@PathVariable Long commentId, Pageable pageable) {
+        return Response.success(commentService.likeList(commentId, pageable));
     }
 }

@@ -42,17 +42,16 @@ public class PostServiceTest {
     static Long postId = 1L;
     static String title = "title";
     static String body = "body";
-    static Long likeId = 1L;
 
     @Test
     public void 전체_포스트_목록_요청이_성공한_경우() {
         Pageable pageable = mock(Pageable.class);
 
-        given(postRepository.findAll(pageable)).willReturn(Page.empty());
+        given(postRepository.findAllJoinFetch(pageable)).willReturn(Page.empty());
 
         postService.list(pageable);
 
-        then(postRepository).should().findAll(any(Pageable.class));
+        then(postRepository).should().findAllJoinFetch(any(Pageable.class));
     }
 
     @Test
@@ -99,24 +98,6 @@ public class PostServiceTest {
     }
 
     @Test
-    public void 포스트_수정이_성공한_경우() {
-        PostEntity postEntity = getPostEntity(userName, title, body);
-        UserEntity userEntity = postEntity.getUser();
-
-        given(userRepository.findByUserName(userName)).willReturn(Optional.of(userEntity));
-        given(postRepository.findById(postId)).willReturn(Optional.of(postEntity));
-        given(postRepository.saveAndFlush(any())).willReturn(postEntity);
-
-        // when
-        postService.modify(postId, title, body, userName);
-
-        // then
-        then(userRepository).should().findByUserName(any(String.class));
-        then(postRepository).should().findById(any(Long.class));
-        then(postRepository).should().saveAndFlush(any(PostEntity.class));
-    }
-
-    @Test
     public void 포스트_수정시_포스트가_존재하지않은_경우() {
         // given
         PostEntity postEntity = getPostEntity(userName, title, body);
@@ -131,6 +112,22 @@ public class PostServiceTest {
 
         // then
         assertEquals(ErrorCode.POST_NOT_FOUND, e.getErrorCode());
+        then(userRepository).should().findByUserName(any(String.class));
+        then(postRepository).should().findById(any(Long.class));
+    }
+
+    @Test
+    public void 포스트_수정이_성공한_경우() {
+        PostEntity postEntity = getPostEntity(userName, title, body);
+        UserEntity userEntity = postEntity.getUser();
+
+        given(userRepository.findByUserName(userName)).willReturn(Optional.of(userEntity));
+        given(postRepository.findById(postId)).willReturn(Optional.of(postEntity));
+
+        // when
+        postService.modify(postId, title, body, userName);
+
+        // then
         then(userRepository).should().findByUserName(any(String.class));
         then(postRepository).should().findById(any(Long.class));
     }
@@ -224,7 +221,7 @@ public class PostServiceTest {
         // then
         then(userRepository).should().findByUserName(any(String.class));
         then(postRepository).should().findById(any(Long.class));
-        then(likeRepository).should().findByTypeAndTypeIdAndUser_Id(any(), any(Long.class), any(Long.class));
+        then(likeRepository).should().findByTypeAndTypeIdAndUserId(any(), any(), any());
         then(likeRepository).should().save(any(LikeEntity.class));
     }
 
@@ -234,7 +231,7 @@ public class PostServiceTest {
         PostEntity postEntity = getPostEntity(userName, title, body);
         UserEntity userEntity = getUserEntity(userName, password);
 
-        LikeEntity likeEntity = getLikeEntity(likeId, userEntity, postEntity.getId(), LikeType.POST);
+        LikeEntity likeEntity = getLikeEntity(userEntity, postEntity.getId(), LikeType.POST);
 
         given(userRepository.findByUserName(userName)).willReturn(Optional.of(userEntity));
         given(postRepository.findById(postId)).willReturn(Optional.of(postEntity));
@@ -255,28 +252,28 @@ public class PostServiceTest {
         Pageable pageable = mock(Pageable.class);
         PostEntity postEntity = getPostEntity(userName, title, body);
 
-        given(postRepository.findById(postEntity.getId())).willReturn(Optional.of(postEntity));
-        given(likeRepository.findAllByTypeAndTypeId(eq(LikeType.POST), eq(postId), any(Pageable.class))).willReturn(Page.empty());
+        given(postRepository.findById(postId)).willReturn(Optional.of(postEntity));
+        given(likeRepository.findAllByTypeAndTypeId(LikeType.POST, postEntity.getId(), pageable)).willReturn(Page.empty());
 
         // when
         postService.likeList(postId, pageable);
 
         // then
         then(postRepository).should().findById(any(Long.class));
-        then(likeRepository).should().findAllByTypeAndTypeId(any(), any(Long.class), any(Pageable.class));
+        then(likeRepository).should().findAllByTypeAndTypeId(any(), any(), any());
     }
 
 
     private UserEntity getUserEntity(String userName, String password) {
-        return UserEntityFixture.get(1L, userName, password);
+        return UserEntityFixture.get(userName, password);
     }
 
     private PostEntity getPostEntity(String userName, String title, String body) {
-        return PostEntityFixture.get(userName, postId, 1L, title, body);
+        return PostEntityFixture.get(userName, title, body);
     }
 
-    private LikeEntity getLikeEntity(Long likeId, UserEntity user, Long typeId, LikeType type) {
-        return LikeEntityFixture.get(likeId, user, typeId, type);
+    private LikeEntity getLikeEntity(UserEntity user, Long typeId, LikeType type) {
+        return LikeEntityFixture.get(user, typeId, type);
     }
 
 }

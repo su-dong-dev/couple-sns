@@ -7,6 +7,7 @@ import com.couple.sns.domain.post.dto.LikeType;
 import com.couple.sns.domain.post.dto.Post;
 import com.couple.sns.domain.post.dto.response.LikeResponse;
 import com.couple.sns.domain.post.dto.response.PostIdResponse;
+import com.couple.sns.domain.post.dto.response.PostResponse;
 import com.couple.sns.domain.post.persistance.LikeEntity;
 import com.couple.sns.domain.post.persistance.PostEntity;
 import com.couple.sns.domain.post.persistance.repository.LikeRepository;
@@ -28,7 +29,7 @@ public class PostService {
     private final LikeRepository likeRepository;
 
     public Page<Post> list(Pageable pageable) {
-       return postRepository.findAll(pageable).map(Post::fromEntity);
+       return postRepository.findAllJoinFetch(pageable).map(Post::fromEntity);
     }
 
     public Page<Post> my(String userName, Pageable pageable) {
@@ -39,13 +40,13 @@ public class PostService {
     @Transactional
     public Post create(String title, String body, String userName) {
         UserEntity user = getUserOrElseThrow(userName);
-        PostEntity post = postRepository.save(PostEntity.toEntity(title, body, user));
+        PostEntity post = postRepository.save(PostEntity.of(title, body, user));
 
         return Post.fromEntity(postRepository.saveAndFlush(post));
     }
 
     @Transactional
-    public Post modify(Long postId, String title, String body, String userName) {
+    public PostResponse modify(Long postId, String title, String body, String userName) {
         UserEntity user = getUserOrElseThrow(userName);
         PostEntity post = getPostOrElseThrow(postId);
 
@@ -56,11 +57,11 @@ public class PostService {
         post.setTitle(title);
         post.setBody(body);
 
-        return Post.fromEntity(postRepository.saveAndFlush(post));
+        return PostResponse.fromPost(Post.fromEntity(post));
     }
 
     @Transactional
-    public PostIdResponse delete(Long postId, String userName) {
+    public void delete(Long postId, String userName) {
         UserEntity user = getUserOrElseThrow(userName);
         PostEntity post = getPostOrElseThrow(postId);
 
@@ -69,8 +70,6 @@ public class PostService {
         }
 
         postRepository.delete(post);
-
-        return new PostIdResponse(postId, userName);
     }
 
     @Transactional
@@ -79,8 +78,8 @@ public class PostService {
         PostEntity post = getPostOrElseThrow(postId);
         UserEntity user = getUserOrElseThrow(userName);
 
-        if (likeRepository.findByTypeAndTypeIdAndUser_Id(LikeType.POST, post.getId(), user.getId()).isEmpty()) {
-            likeRepository.save(LikeEntity.toEntity(user, post.getId(), LikeType.POST));
+        if (likeRepository.findByTypeAndTypeIdAndUserId(LikeType.POST, post.getId(), user.getId()).isEmpty()) {
+            likeRepository.save(LikeEntity.of(user, post.getId(), LikeType.POST));
             return true;
         } else {
             likeRepository.delete(likeRepository.findByTypeAndTypeIdAndUser_Id(LikeType.POST, post.getId(), user.getId()).get());

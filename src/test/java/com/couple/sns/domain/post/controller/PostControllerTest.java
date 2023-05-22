@@ -19,6 +19,7 @@ import com.couple.sns.domain.post.dto.request.PostCreateRequest;
 import com.couple.sns.domain.post.dto.request.PostModifyRequest;
 import com.couple.sns.domain.post.dto.response.LikeResponse;
 import com.couple.sns.domain.post.dto.response.PostIdResponse;
+import com.couple.sns.domain.post.dto.response.PostResponse;
 import com.couple.sns.domain.post.dto.response.UserLikeResponse;
 import com.couple.sns.domain.post.service.PostService;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -107,7 +108,7 @@ public class PostControllerTest {
         String body = "body";
 
         given(postService.create(eq(title), eq(body), any()))
-            .willReturn(Post.fromEntity(PostEntityFixture.get("userName", 1L, 1L, title, body)));
+            .willReturn(Post.fromEntity(PostEntityFixture.get("userName", title, body)));
 
         mockMvc.perform(post("/api/v1/posts")
                 .contentType(MediaType.APPLICATION_JSON)
@@ -138,7 +139,7 @@ public class PostControllerTest {
         String body = "modify_body";
 
         given(postService.modify(any(),any(), any(), any()))
-            .willReturn(Post.fromEntity(PostEntityFixture.get("userName", 1L, 1L, title, body)));
+            .willReturn(PostResponse.fromPost(Post.fromEntity(PostEntityFixture.get("userName", title, body))));
 
         mockMvc.perform(put( "/api/v1/posts/1")
                 .contentType(MediaType.APPLICATION_JSON)
@@ -151,12 +152,8 @@ public class PostControllerTest {
     @WithMockUser(authorities = "USER")
     public void 포스트_삭제_성공() throws Exception {
 
-        given(postService.delete(any(),any()))
-            .willReturn(new PostIdResponse(any(), any()));
-
         mockMvc.perform(delete("/api/v1/posts/1")
                 .contentType(MediaType.APPLICATION_JSON)
-                .content(objectMapper.writeValueAsBytes(new PostIdResponse(1L, "userName")))
             ).andDo(print())
             .andExpect(status().isOk());
     }

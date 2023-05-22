@@ -18,7 +18,6 @@ import org.hibernate.annotations.SQLDelete;
 import org.hibernate.annotations.UpdateTimestamp;
 import org.hibernate.annotations.Where;
 
-@Setter
 @Getter
 @Entity
 @Table(name = "post")
@@ -30,12 +29,15 @@ public class PostEntity {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
+    @Setter
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "user_id")
     private UserEntity user;
 
+    @Setter
     private String title;
 
+    @Setter
     @Column(columnDefinition = "TEXT")
     private String body;
 
@@ -46,16 +48,16 @@ public class PostEntity {
     private LocalDateTime updatedAt;
     private LocalDateTime deletedAt;
 
-    public PostEntity() {
+    protected PostEntity() {
     }
 
-    public static PostEntity toEntity(String title, String body, UserEntity userEntity) {
-        PostEntity postEntity = new PostEntity();
+    private PostEntity(UserEntity userEntity, String title, String body) {
+        this.user = userEntity;
+        this.title = title;
+        this.body = body;
+    }
 
-        postEntity.setUser(userEntity);
-        postEntity.setTitle(title);
-        postEntity.setBody(body);
-
-        return postEntity;
+    public static PostEntity of(String title, String body, UserEntity userEntity) {
+        return new PostEntity(userEntity, title, body);
     }
 }

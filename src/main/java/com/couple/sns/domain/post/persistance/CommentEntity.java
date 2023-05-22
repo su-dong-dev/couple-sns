@@ -12,13 +12,11 @@ import jakarta.persistence.ManyToOne;
 import jakarta.persistence.Table;
 import java.time.LocalDateTime;
 import lombok.Getter;
-import lombok.Setter;
 import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.SQLDelete;
 import org.hibernate.annotations.UpdateTimestamp;
 import org.hibernate.annotations.Where;
 
-@Setter
 @Getter
 @Entity
 @Table(name = "comment")
@@ -48,16 +46,16 @@ public class CommentEntity {
     private LocalDateTime updatedAt;
     private LocalDateTime deletedAt;
 
-    public CommentEntity() {
+    protected CommentEntity() {
     }
 
-    public static CommentEntity toEntity(UserEntity user, PostEntity post, String content) {
-        CommentEntity commentEntity = new CommentEntity();
+    private CommentEntity(UserEntity user, PostEntity post, String content) {
+        this.user = user;
+        this.post = post;
+        this.content = content;
+    }
 
-        commentEntity.setUser(user);
-        commentEntity.setPost(post);
-        commentEntity.setContent(content);
-
-        return commentEntity;
+    public static CommentEntity of(UserEntity user, PostEntity post, String content) {
+        return new CommentEntity(user, post, content);
     }
 }

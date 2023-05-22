@@ -50,14 +50,13 @@ public class PostController {
     public Response<PostResponse> modify(@PathVariable Long postId,
         @RequestBody PostModifyRequest request,
         Authentication authentication) {
-        Post post = postService.modify(postId, request.getBody(), request.getBody(),
-            authentication.getName());
-        return Response.success(PostResponse.fromPost(post));
+        return Response.success(postService.modify(postId, request.getBody(), request.getBody(), authentication.getName()));
     }
 
     @DeleteMapping("/{postId}")
-    public Response<PostIdResponse> delete(@PathVariable Long postId, Authentication authentication) {
-        return Response.success(postService.delete(postId, authentication.getName()));
+    public Response<Void> delete(@PathVariable Long postId, Authentication authentication) {
+        postService.delete(postId, authentication.getName());
+        return Response.success();
     }
 
     @PostMapping("/{postId}/likes")

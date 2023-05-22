@@ -9,12 +9,10 @@ import jakarta.persistence.ManyToOne;
 import jakarta.persistence.Table;
 import java.time.LocalDateTime;
 import lombok.Getter;
-import lombok.Setter;
 import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.SQLDelete;
 import org.hibernate.annotations.Where;
 
-@Setter
 @Getter
 @Entity
 @Table(name = "token")
@@ -37,14 +35,15 @@ public class TokenEntity {
 
     private boolean deleted;
 
-    public TokenEntity() {
+    protected TokenEntity() {
     }
 
-    public static TokenEntity toEntity(String token, UserEntity userEntity) {
-        TokenEntity tokenEntity = new TokenEntity();
-        tokenEntity.setUser(userEntity);
-        tokenEntity.setRefreshToken(token);
+    private TokenEntity(String token, UserEntity userEntity) {
+        this.refreshToken = token;
+        this.user = userEntity;
+    }
 
-        return tokenEntity;
+    public static TokenEntity of(String token, UserEntity userEntity) {
+        return new TokenEntity(token, userEntity);
     }
 }
