@@ -212,7 +212,7 @@ public class PostServiceTest {
 
         given(userRepository.findByUserName(userName)).willReturn(Optional.of(userEntity));
         given(postRepository.findById(postId)).willReturn(Optional.of(postEntity));
-        given(likeRepository.findByTypeAndTypeIdAndUserId(LikeType.POST, postEntity.getId(), userEntity.getId())).willReturn(Optional.empty());
+        given(likeRepository.findByTypeAndTypeIdAndUser_Id(LikeType.POST, postEntity.getId(), userEntity.getId())).willReturn(Optional.empty());
         given(likeRepository.save(any())).willReturn(any(LikeEntity.class));
 
         // when
@@ -235,7 +235,7 @@ public class PostServiceTest {
 
         given(userRepository.findByUserName(userName)).willReturn(Optional.of(userEntity));
         given(postRepository.findById(postId)).willReturn(Optional.of(postEntity));
-        given(likeRepository.findByTypeAndTypeIdAndUserId(LikeType.POST, postEntity.getId(), userEntity.getId())).willReturn(Optional.of(likeEntity));
+        given(likeRepository.findByTypeAndTypeIdAndUser_Id(LikeType.POST, postEntity.getId(), userEntity.getId())).willReturn(Optional.of(likeEntity));
 
         // when
         postService.like(postId, userName);

@@ -12,7 +12,6 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 
 import com.couple.sns.common.exception.ErrorCode;
 import com.couple.sns.common.exception.SnsApplicationException;
-import com.couple.sns.domain.post.dto.LikeType;
 import com.couple.sns.domain.post.dto.response.CommentResponse;
 import com.couple.sns.domain.post.dto.response.LikeResponse;
 import com.couple.sns.domain.post.dto.response.UserLikeResponse;
@@ -140,12 +139,11 @@ public class CommentControllerTest {
         Long pageSize = 1L;
         List<UserLikeResponse> users = new ArrayList<>();
 
-        given(commentService.likeList(eq(commentId),any(Pageable.class))).willReturn(new LikeResponse(
-            LikeType.COMMENT, commentId, pageSize, users));
+        given(commentService.likeList(eq(commentId),any(Pageable.class))).willReturn(new LikeResponse(commentId, pageSize, users));
 
         mockMvc.perform(get("/api/v1/comments/1/likes")
                 .contentType(MediaType.APPLICATION_JSON)
-                .content(objectMapper.writeValueAsBytes(new LikeResponse(LikeType.COMMENT, 1L, 1L, users)))
+                .content(objectMapper.writeValueAsBytes(new LikeResponse(1L, 1L, users)))
             ).andDo(print())
             .andExpect(status().isOk());
     }

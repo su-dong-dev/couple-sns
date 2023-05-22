@@ -66,7 +66,7 @@ public class CommentService {
             likeRepository.save(LikeEntity.of(user, comment.getId(), LikeType.COMMENT));
             return true;
         } else {
-            likeRepository.delete(likeRepository.findByTypeAndTypeIdAndUserId(LikeType.COMMENT, comment.getId(), user.getId()).get());
+            likeRepository.delete(likeRepository.findByTypeAndTypeIdAndUser_Id(LikeType.COMMENT, comment.getId(), user.getId()).get());
             return false;
         }
     }
@@ -77,6 +77,7 @@ public class CommentService {
         return LikeResponse.from(
             LikeType.COMMENT, comment.getId(), likeRepository.findAllByTypeAndTypeId(LikeType.COMMENT, comment.getId(), pageable).map(
             Like::fromEntity));
+
     }
 
     private UserEntity getUserOrElseThrow(String userName) {
