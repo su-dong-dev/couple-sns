@@ -14,13 +14,11 @@ import jakarta.persistence.ManyToOne;
 import jakarta.persistence.Table;
 import java.time.LocalDateTime;
 import lombok.Getter;
-import lombok.Setter;
 import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.SQLDelete;
 import org.hibernate.annotations.UpdateTimestamp;
 import org.hibernate.annotations.Where;
 
-@Setter
 @Getter
 @Entity
 @Table(name = "likes")
@@ -48,16 +46,16 @@ public class LikeEntity {
     private LocalDateTime updatedAt;
     private LocalDateTime deletedAt;
 
-    public LikeEntity() {
+    protected LikeEntity() {
     }
 
-    public static LikeEntity toEntity(UserEntity userEntity, Long typeId, LikeType type) {
-        LikeEntity likeEntity = new LikeEntity();
+    private LikeEntity(UserEntity user, Long typeId, LikeType type) {
+        this.user = user;
+        this.typeId = typeId;
+        this.type = type;
+    }
 
-        likeEntity.setUser(userEntity);
-        likeEntity.setTypeId(typeId);
-        likeEntity.setType(type);
-
-        return likeEntity;
+    public static LikeEntity of(UserEntity userEntity, Long typeId, LikeType type) {
+        return new LikeEntity(userEntity, typeId, type);
     }
 }

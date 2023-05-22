@@ -39,13 +39,13 @@ public class CommentController {
         return Response.success();
     }
 
-    @PostMapping("/comments/{commendId}/likes")
-    public Response<Boolean> like(@PathVariable Long commendId, Authentication authentication) {
-        return Response.success(commentService.like(commendId, authentication.getName()));
+    @PostMapping("/comments/{commentId}/likes")
+    public Response<Boolean> like(@PathVariable Long commentId, Authentication authentication) {
+        return Response.success(commentService.like(commentId, authentication.getName()));
     }
 
-    @GetMapping("/comments/{commendId}/likes")
-    public Response<LikeResponse> likeList(@PathVariable Long commendId, Pageable pageable) {
-        return Response.success(commentService.likeList(commendId, pageable));
+    @GetMapping("/comments/{commentId}/likes")
+    public Response<LikeResponse> likeList(@PathVariable Long commentId, Pageable pageable) {
+        return Response.success(commentService.likeList(commentId, pageable));
     }
 }

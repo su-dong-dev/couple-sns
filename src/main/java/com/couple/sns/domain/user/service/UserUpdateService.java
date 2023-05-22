@@ -51,7 +51,7 @@ public class UserUpdateService {
         String refreshToken = JwtTokenUtils.createRefreshToken(userName, jwtProperties.getSecretKey(),
             jwtProperties.getExpiredTimeMs());
 
-        tokenRepository.save(TokenEntity.toEntity(refreshToken, user));
+        tokenRepository.save(TokenEntity.of(refreshToken, user));
 
         return new UserTokenResponse(token, refreshToken);
     }
@@ -76,7 +76,7 @@ public class UserUpdateService {
             jwtProperties.getExpiredTimeMs());
 
         tokenRepository.delete(tokenEntity);
-        tokenRepository.save(TokenEntity.toEntity(refreshToken, userEntity));
+        tokenRepository.save(TokenEntity.of(refreshToken, userEntity));
 
         return new UserTokenResponse(accessToken, refreshToken);
     }

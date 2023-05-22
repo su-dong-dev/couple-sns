@@ -50,9 +50,7 @@ public class PostController {
     public Response<PostResponse> modify(@PathVariable Long postId,
         @RequestBody PostModifyRequest request,
         Authentication authentication) {
-        Post post = postService.modify(postId, request.getBody(), request.getBody(),
-            authentication.getName());
-        return Response.success(PostResponse.fromPost(post));
+        return Response.success(postService.modify(postId, request.getBody(), request.getBody(), authentication.getName()));
     }
 
     @DeleteMapping("/{postId}")
