@@ -23,12 +23,12 @@ public class CommentController {
 
     private final CommentService commentService;
 
-    @GetMapping("/{postId}/comments")
+    @GetMapping("/posts/{postId}/comments")
     public Response<Page<CommentResponse>> list(@PathVariable Long postId, Pageable pageable) {
         return Response.success(commentService.list(postId, pageable).map(CommentResponse::fromComment));
     }
 
-    @PostMapping("/{postId}/comments")
+    @PostMapping("/posts/{postId}/comments")
     public Response<CommentResponse> comment(Authentication authentication, @PathVariable Long postId, @RequestBody String content) {
         return Response.success(commentService.create(authentication.getName(), postId, content));
     }
