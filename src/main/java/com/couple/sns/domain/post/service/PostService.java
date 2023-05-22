@@ -61,7 +61,7 @@ public class PostService {
     }
 
     @Transactional
-    public PostIdResponse delete(Long postId, String userName) {
+    public void delete(Long postId, String userName) {
         UserEntity user = getUserOrElseThrow(userName);
         PostEntity post = getPostOrElseThrow(postId);
 
@@ -70,8 +70,6 @@ public class PostService {
         }
 
         postRepository.delete(post);
-
-        return new PostIdResponse(postId, userName);
     }
 
     @Transactional

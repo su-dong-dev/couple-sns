@@ -148,12 +148,8 @@ public class PostControllerTest {
     @WithMockUser(authorities = "USER")
     public void 포스트_삭제_성공() throws Exception {
 
-        given(postService.delete(any(),any()))
-            .willReturn(new PostIdResponse(any(), any()));
-
         mockMvc.perform(delete("/api/v1/posts/1")
                 .contentType(MediaType.APPLICATION_JSON)
-                .content(objectMapper.writeValueAsBytes(new PostIdResponse(1L, "userName")))
             ).andDo(print())
             .andExpect(status().isOk());
     }

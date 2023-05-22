@@ -54,8 +54,9 @@ public class PostController {
     }
 
     @DeleteMapping("/{postId}")
-    public Response<PostIdResponse> delete(@PathVariable Long postId, Authentication authentication) {
-        return Response.success(postService.delete(postId, authentication.getName()));
+    public Response<Void> delete(@PathVariable Long postId, Authentication authentication) {
+        postService.delete(postId, authentication.getName());
+        return Response.success();
     }
 
     @PostMapping("/{postId}/likes")
