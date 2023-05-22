@@ -44,7 +44,7 @@ class UserUpdateServiceTest {
         String userName = "userName";
         String password = "password";
 
-        given(userRepository.save(any())).willReturn(UserEntityFixture.get(id, userName,password));
+        given(userRepository.save(any())).willReturn(UserEntityFixture.get(userName,password));
         given(encoder.encode(password)).willReturn("encrypt_passowrd");
 
         // when
@@ -61,7 +61,7 @@ class UserUpdateServiceTest {
         String userName = "userName";
         String password = "password";
 
-        UserEntity fixture = UserEntityFixture.get(id, userName, password);
+        UserEntity fixture = UserEntityFixture.get(userName, password);
 
         given(userRepository.findByUserName(userName)).willReturn(Optional.of(fixture));
 
@@ -81,7 +81,7 @@ class UserUpdateServiceTest {
         String userName = "userName";
         String password = "password";
 
-        UserEntity fixture = UserEntityFixture.get(id, userName, password);
+        UserEntity fixture = UserEntityFixture.get(userName, password);
 
         given(userRepository.findByUserName(any())).willReturn(Optional.of(fixture));
         given(encoder.matches(password, fixture.getPassword())).willReturn(true);
@@ -120,8 +120,8 @@ class UserUpdateServiceTest {
         String password = "password";
         String wrongPassword = "wrongPassword";
 
-        UserEntity fixture = UserEntityFixture.get(id, userName, password);
-ㅕ
+        UserEntity fixture = UserEntityFixture.get(userName, password);
+
         given(userRepository.findByUserName(any())).willReturn(Optional.of(fixture));
 
         // when
