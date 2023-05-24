@@ -146,7 +146,7 @@ public class CommentServiceTest {
         // then
         then(userRepository).should().findByUserName(any(String.class));
         then(commentRepository).should().findById(any(Long.class));
-        then(likeRepository).should().findByTypeAndTypeIdAndUserId(any(), any(), any());
+        then(likeRepository).should().findByTypeAndTypeIdAndUser_Id(any(), any(), any());
         then(likeRepository).should().save(any(LikeEntity.class));
     }
 
