@@ -78,7 +78,7 @@ public class PostService {
         PostEntity post = getPostOrElseThrow(postId);
         UserEntity user = getUserOrElseThrow(userName);
 
-        if (likeRepository.findByTypeAndTypeIdAndUserId(LikeType.POST, post.getId(), user.getId()).isEmpty()) {
+        if (likeRepository.findByTypeAndTypeIdAndUser_Id(LikeType.POST, post.getId(), user.getId()).isEmpty()) {
             likeRepository.save(LikeEntity.of(user, post.getId(), LikeType.POST));
             return true;
         } else {

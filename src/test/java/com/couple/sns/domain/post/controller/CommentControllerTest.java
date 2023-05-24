@@ -54,7 +54,7 @@ public class CommentControllerTest {
 
         given(commentService.list(eq(postId), any(Pageable.class))).willReturn(Page.empty());
 
-        mockMvc.perform(get("/api/v1/" + postId + "/comments")
+        mockMvc.perform(get("/api/v1/posts/" + postId + "/comments")
                 .contentType(MediaType.APPLICATION_JSON)
             ).andDo(print())
             .andExpect(status().isOk());
@@ -67,7 +67,7 @@ public class CommentControllerTest {
         given(commentService.create(eq(userName), eq(postId), eq(content))).willReturn(
             new CommentResponse(postId, commentId, userName, content));
 
-        mockMvc.perform(post("/api/v1/" + postId + "/comments")
+        mockMvc.perform(post("/api/v1/posts/" + postId + "/comments")
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(objectMapper.writeValueAsBytes(content))
             ).andDo(print())
@@ -82,7 +82,7 @@ public class CommentControllerTest {
             new SnsApplicationException(
                 ErrorCode.USER_NOT_FOUND));
 
-        mockMvc.perform(post("/api/v1/" + postId + "/comments")
+        mockMvc.perform(post("/api/v1/posts/" + postId + "/comments")
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(objectMapper.writeValueAsBytes(content))
             ).andDo(print())
