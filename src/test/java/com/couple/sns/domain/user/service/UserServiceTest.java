@@ -8,6 +8,7 @@ import static org.mockito.BDDMockito.then;
 
 import com.couple.sns.common.configuration.util.JwtTokenUtils;
 import com.couple.sns.domain.common.fixture.UserEntityFixture;
+import com.couple.sns.domain.user.dto.UserDto;
 import com.couple.sns.domain.user.dto.UserRole;
 import com.couple.sns.domain.user.persistance.TokenEntity;
 import com.couple.sns.domain.user.persistance.UserEntity;
@@ -23,10 +24,10 @@ import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 
 @SpringBootTest
 @Import(JwtTokenUtils.class)
-class UserUpdateServiceTest {
+class UserServiceTest {
 
     @Autowired
-    private UserUpdateService userUpdateService;
+    private UserService userService;
 
     @MockBean
     private UserRepository userRepository;
@@ -48,7 +49,7 @@ class UserUpdateServiceTest {
         given(encoder.encode(password)).willReturn("encrypt_passowrd");
 
         // when
-        userUpdateService.join(userName, password, UserRole.USER);
+        userService.join(UserDto.of(userName, password, UserRole.USER));
 
         // then
         then(userRepository).should().save(any(UserEntity.class));
@@ -66,7 +67,7 @@ class UserUpdateServiceTest {
         given(userRepository.findByUserName(userName)).willReturn(Optional.of(fixture));
 
         // when
-        Throwable t = catchThrowable(() -> userUpdateService.join(userName, password, UserRole.USER));
+        Throwable t = catchThrowable(() -> userService.join(UserDto.of(userName, password, UserRole.USER)));
 
         // then
         assertThat(t)
@@ -88,7 +89,7 @@ class UserUpdateServiceTest {
         given(tokenRepository.save(any())).willReturn(any(TokenEntity.class));
 
         // when
-        userUpdateService.login(userName, password);
+        userService.login(userName, password);
 
         // then
         then(userRepository).should().findByUserName(any());
@@ -104,7 +105,7 @@ class UserUpdateServiceTest {
         given(userRepository.findByUserName(any())).willReturn(Optional.empty());
 
         // when
-        Throwable t = catchThrowable(() -> userUpdateService.login(userName, password));
+        Throwable t = catchThrowable(() -> userService.login(userName, password));
 
         // then
         assertThat(t)
@@ -125,7 +126,7 @@ class UserUpdateServiceTest {
         given(userRepository.findByUserName(any())).willReturn(Optional.of(fixture));
 
         // when
-        Throwable t = catchThrowable(() -> userUpdateService.login(userName, password));
+        Throwable t = catchThrowable(() -> userService.login(userName, password));
 
         // then
         assertThat(t)

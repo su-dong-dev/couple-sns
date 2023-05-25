@@ -1,13 +1,12 @@
 package com.couple.sns.domain.user.controller;
 
 import com.couple.sns.common.responce.Response;
-import com.couple.sns.domain.user.dto.UserDto;
 import com.couple.sns.domain.user.dto.request.TokenReIssueRequest;
 import com.couple.sns.domain.user.dto.request.UserJoinRequest;
 import com.couple.sns.domain.user.dto.request.UserLoginRequest;
 import com.couple.sns.domain.user.dto.response.UserResponse;
 import com.couple.sns.domain.user.dto.response.UserTokenResponse;
-import com.couple.sns.domain.user.service.UserUpdateService;
+import com.couple.sns.domain.user.service.UserService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -19,25 +18,21 @@ import org.springframework.web.bind.annotation.RestController;
 @RequiredArgsConstructor
 public class UserController {
 
-    private final UserUpdateService userUpdateService;
+    private final UserService userService;
 
     @PostMapping("/join")
     public Response<UserResponse> join(@RequestBody UserJoinRequest userJoinRequest) {
-        UserDto user = userUpdateService.join(
-            userJoinRequest.getUserName(),
-            userJoinRequest.getPassword(),
-            userJoinRequest.getRole());
-        return Response.success(UserResponse.from(user));
+        return Response.success(userService.join(userJoinRequest.toDto()));
     }
 
     @PostMapping("/login")
     public Response<UserTokenResponse> login(@RequestBody UserLoginRequest userLoginRequest) {
         return Response.success(
-            userUpdateService.login(userLoginRequest.getUserName(), userLoginRequest.getPassword()));
+            userService.login(userLoginRequest.getUserName(), userLoginRequest.getPassword()));
     }
 
     @PostMapping("/reissue")
     public Response<UserTokenResponse> reissue(@RequestBody TokenReIssueRequest tokenReIssueRequest) {
-        return Response.success(userUpdateService.reissue(tokenReIssueRequest.getRefreshToken()));
+        return Response.success(userService.reissue(tokenReIssueRequest.getRefreshToken()));
     }
 }
