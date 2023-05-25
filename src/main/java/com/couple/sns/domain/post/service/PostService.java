@@ -29,13 +29,13 @@ public class PostService {
 
     @Transactional(readOnly = true)
     public Page<PostDto> getPosts(Pageable pageable) {
-       return postRepository.findAllJoinFetch(pageable).map(PostDto::from);
+       return postRepository.findAllJoinFetch(pageable).map(PostDto::fromEntity);
     }
 
     @Transactional(readOnly = true)
     public Page<PostDto> getMyPosts(String userName, Pageable pageable) {
         UserEntity user = getUserOrElseThrow(userName);
-        return postRepository.findAllByUser(user, pageable).map(PostDto::from);
+        return postRepository.findAllByUser(user, pageable).map(PostDto::fromEntity);
     }
 
     @Transactional
@@ -43,7 +43,7 @@ public class PostService {
         UserEntity user = getUserOrElseThrow(userName);
         PostEntity post = postRepository.save(dto.toEntity(user));
 
-        return PostResponse.fromPost(PostDto.from(post));
+        return PostResponse.fromPost(PostDto.fromEntity(post));
     }
 
     @Transactional
@@ -58,7 +58,7 @@ public class PostService {
         post.setTitle(dto.getTitle());
         post.setBody(dto.getBody());
 
-        return PostResponse.fromPost(PostDto.from(post));
+        return PostResponse.fromPost(PostDto.fromEntity(post));
     }
 
     @Transactional

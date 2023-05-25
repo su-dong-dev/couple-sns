@@ -107,7 +107,7 @@ public class PostControllerTest {
 
         given(postService.create(any(), eq(PostDto.of(title, body))))
             .willReturn(PostResponse.fromPost(
-                PostDto.from(PostEntityFixture.get("userName", title, body))));
+                PostDto.fromEntity(PostEntityFixture.get("userName", title, body))));
 
         mockMvc.perform(post("/api/v1/posts")
                 .contentType(MediaType.APPLICATION_JSON)
@@ -139,7 +139,7 @@ public class PostControllerTest {
 
         given(postService.modify(any(),any(), any()))
             .willReturn(PostResponse.fromPost(
-                PostDto.from(PostEntityFixture.get("userName", title, body))));
+                PostDto.fromEntity(PostEntityFixture.get("userName", title, body))));
 
         mockMvc.perform(put( "/api/v1/posts/1")
                 .contentType(MediaType.APPLICATION_JSON)

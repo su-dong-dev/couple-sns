@@ -25,7 +25,7 @@ public class CommentDto {
         return new CommentDto(
             commentEntity.getId(),
             UserDto.fromEntity(commentEntity.getUser()),
-            PostDto.from(commentEntity.getPost()),
+            PostDto.fromEntity(commentEntity.getPost()),
             commentEntity.getContent(),
             commentEntity.getRegisteredAt(),
             commentEntity.getUpdatedAt(),

@@ -30,7 +30,7 @@ public class PostDto {
         return new PostDto(null, title, body, null, null, null, null);
     }
 
-    public static PostDto from(PostEntity postEntity) {
+    public static PostDto fromEntity(PostEntity postEntity) {
         return new PostDto(
             postEntity.getId(),
             postEntity.getTitle(),
