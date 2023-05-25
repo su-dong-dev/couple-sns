@@ -23,6 +23,14 @@ public class UserDto implements UserDetails {
     private LocalDateTime updatedAt;
     private LocalDateTime deletedAt;
 
+    public static UserDto of(Long id, String userName, String password, UserRole userRole, LocalDateTime registeredAt, LocalDateTime updatedAt, LocalDateTime deletedAt) {
+        return new UserDto(id, userName, password, userRole, registeredAt, updatedAt, deletedAt);
+    }
+
+    public static UserDto of(String userName, String password, UserRole userRole) {
+        return new UserDto(null, userName, password, userRole, null, null, null);
+    }
+
     public static UserDto fromEntity(UserEntity userEntity) {
         return new UserDto(
                 userEntity.getId(),
@@ -33,6 +41,10 @@ public class UserDto implements UserDetails {
                 userEntity.getUpdatedAt(),
                 userEntity.getDeletedAt()
         );
+    }
+
+    public UserEntity toEntity(String encodePassword) {
+        return UserEntity.of(userName, encodePassword, userRole);
     }
 
     @Override

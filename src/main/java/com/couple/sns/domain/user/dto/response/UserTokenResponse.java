@@ -9,4 +9,11 @@ public class UserTokenResponse {
 
     private String accessToken;
     private String refreshToken;
+
+    public static UserTokenResponse of(String accessToken, String refreshToken) {
+        return new UserTokenResponse(
+            accessToken,
+            refreshToken
+        );
+    }
 }

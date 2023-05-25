@@ -3,7 +3,7 @@ package com.couple.sns.domain.user.service;
 import com.couple.sns.common.configuration.util.JwtTokenUtils;
 import com.couple.sns.common.property.JwtProperties;
 import com.couple.sns.domain.user.dto.UserDto;
-import com.couple.sns.domain.user.dto.UserRole;
+import com.couple.sns.domain.user.dto.response.UserResponse;
 import com.couple.sns.domain.user.dto.response.UserTokenResponse;
 import com.couple.sns.domain.user.persistance.TokenEntity;
 import com.couple.sns.domain.user.persistance.UserEntity;
@@ -16,7 +16,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 @Service
 @RequiredArgsConstructor
-public class UserUpdateService {
+public class UserService {
 
     private final UserRepository userRepository;
     private final TokenRepository tokenRepository;
@@ -25,15 +25,14 @@ public class UserUpdateService {
     private final JwtProperties jwtProperties;
 
     @Transactional
-    public UserDto join(String userName, String password, UserRole role) {
-        userRepository.findByUserName(userName).ifPresent(it -> {
+    public UserResponse join(UserDto dto) {
+        userRepository.findByUserName(dto.getUsername()).ifPresent(it -> {
             throw new IllegalStateException("이미 존재하는 아이디입니다.");
         });
 
-        UserEntity userEntity = userRepository.save(
-            UserEntity.of(userName, encoder.encode(password), role));
+        userRepository.save(dto.toEntity(encoder.encode(dto.getPassword())));
 
-        return UserDto.fromEntity(userEntity);
+        return UserResponse.from(dto);
     }
 
     public UserTokenResponse login(String userName, String password) {
@@ -53,7 +52,7 @@ public class UserUpdateService {
 
         tokenRepository.save(TokenEntity.of(refreshToken, user));
 
-        return new UserTokenResponse(token, refreshToken);
+        return UserTokenResponse.of(token, refreshToken);
     }
 
     @Transactional
@@ -78,6 +77,6 @@ public class UserUpdateService {
         tokenRepository.delete(tokenEntity);
         tokenRepository.save(TokenEntity.of(refreshToken, userEntity));
 
-        return new UserTokenResponse(accessToken, refreshToken);
+        return UserTokenResponse.of(accessToken, refreshToken);
     }
 }
