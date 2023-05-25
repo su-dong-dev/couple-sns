@@ -6,13 +6,13 @@ import lombok.Getter;
 
 @Getter
 @AllArgsConstructor
-public class UserJoinResponse {
+public class UserResponse {
 
     private Long id;
     private String userName;
 
-    public static UserJoinResponse fromUser(UserDto user) {
-        return new UserJoinResponse(
+    public static UserResponse from(UserDto user) {
+        return new UserResponse(
                 user.getId(),
                 user.getUsername()
         );

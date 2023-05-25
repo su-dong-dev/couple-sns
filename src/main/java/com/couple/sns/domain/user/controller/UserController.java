@@ -5,7 +5,7 @@ import com.couple.sns.domain.user.dto.UserDto;
 import com.couple.sns.domain.user.dto.request.TokenReIssueRequest;
 import com.couple.sns.domain.user.dto.request.UserJoinRequest;
 import com.couple.sns.domain.user.dto.request.UserLoginRequest;
-import com.couple.sns.domain.user.dto.response.UserJoinResponse;
+import com.couple.sns.domain.user.dto.response.UserResponse;
 import com.couple.sns.domain.user.dto.response.UserTokenResponse;
 import com.couple.sns.domain.user.service.UserUpdateService;
 import lombok.RequiredArgsConstructor;
@@ -22,12 +22,12 @@ public class UserController {
     private final UserUpdateService userUpdateService;
 
     @PostMapping("/join")
-    public Response<UserJoinResponse> join(@RequestBody UserJoinRequest userJoinRequest) {
+    public Response<UserResponse> join(@RequestBody UserJoinRequest userJoinRequest) {
         UserDto user = userUpdateService.join(
             userJoinRequest.getUserName(),
             userJoinRequest.getPassword(),
             userJoinRequest.getRole());
-        return Response.success(UserJoinResponse.fromUser(user));
+        return Response.success(UserResponse.from(user));
     }
 
     @PostMapping("/login")
