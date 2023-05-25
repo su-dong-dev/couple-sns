@@ -12,7 +12,7 @@ import java.util.List;
 
 @Getter
 @AllArgsConstructor
-public class User implements UserDetails {
+public class UserDto implements UserDetails {
 
     private Long id;
     private String userName;
@@ -23,8 +23,8 @@ public class User implements UserDetails {
     private LocalDateTime updatedAt;
     private LocalDateTime deletedAt;
 
-    public static User fromEntity(UserEntity userEntity) {
-        return new User(
+    public static UserDto fromEntity(UserEntity userEntity) {
+        return new UserDto(
                 userEntity.getId(),
                 userEntity.getUserName(),
                 userEntity.getPassword(),

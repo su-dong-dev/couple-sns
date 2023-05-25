@@ -1,9 +1,8 @@
 package com.couple.sns.domain.post.dto.response;
 
-import static com.couple.sns.domain.post.dto.response.UserLikeResponse.fromUser;
+import static com.couple.sns.domain.post.dto.response.UserResponse.fromUser;
 
-import com.couple.sns.domain.post.dto.Like;
-import com.couple.sns.domain.post.dto.LikeType;
+import com.couple.sns.domain.post.dto.LikeDto;
 import java.util.List;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -15,14 +14,14 @@ public class LikeResponse {
 
     private Long typeId;
     private Long count;
-    private List<UserLikeResponse> users;
+    private List<UserResponse> users;
 
 
-    public static LikeResponse from(Long typeId, Page<Like> likes) {
+    public static LikeResponse from(Long typeId, Page<LikeDto> likes) {
         return new LikeResponse(
             typeId,
             likes.getTotalElements(),
-            likes.map(like -> fromUser(like.getUser().getId(), like.getUser().getUsername())).stream().toList()
+            likes.map(likeDto -> fromUser(likeDto.getUser().getId(), likeDto.getUser().getUsername())).stream().toList()
         );
     }
 }

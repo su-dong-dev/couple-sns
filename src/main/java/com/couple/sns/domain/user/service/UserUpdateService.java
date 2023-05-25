@@ -2,7 +2,7 @@ package com.couple.sns.domain.user.service;
 
 import com.couple.sns.common.configuration.util.JwtTokenUtils;
 import com.couple.sns.common.property.JwtProperties;
-import com.couple.sns.domain.user.dto.User;
+import com.couple.sns.domain.user.dto.UserDto;
 import com.couple.sns.domain.user.dto.UserRole;
 import com.couple.sns.domain.user.dto.response.UserTokenResponse;
 import com.couple.sns.domain.user.persistance.TokenEntity;
@@ -25,7 +25,7 @@ public class UserUpdateService {
     private final JwtProperties jwtProperties;
 
     @Transactional
-    public User join(String userName, String password, UserRole role) {
+    public UserDto join(String userName, String password, UserRole role) {
         userRepository.findByUserName(userName).ifPresent(it -> {
             throw new IllegalStateException("이미 존재하는 아이디입니다.");
         });
@@ -33,7 +33,7 @@ public class UserUpdateService {
         UserEntity userEntity = userRepository.save(
             UserEntity.of(userName, encoder.encode(password), role));
 
-        return User.fromEntity(userEntity);
+        return UserDto.fromEntity(userEntity);
     }
 
     public UserTokenResponse login(String userName, String password) {

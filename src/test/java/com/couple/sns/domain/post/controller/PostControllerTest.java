@@ -14,13 +14,11 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import com.couple.sns.common.exception.ErrorCode;
 import com.couple.sns.common.exception.SnsApplicationException;
 import com.couple.sns.domain.common.fixture.PostEntityFixture;
-import com.couple.sns.domain.post.dto.Post;
-import com.couple.sns.domain.post.dto.request.PostCreateRequest;
-import com.couple.sns.domain.post.dto.request.PostModifyRequest;
+import com.couple.sns.domain.post.dto.PostDto;
+import com.couple.sns.domain.post.dto.request.PostRequest;
 import com.couple.sns.domain.post.dto.response.LikeResponse;
-import com.couple.sns.domain.post.dto.response.PostIdResponse;
 import com.couple.sns.domain.post.dto.response.PostResponse;
-import com.couple.sns.domain.post.dto.response.UserLikeResponse;
+import com.couple.sns.domain.post.dto.response.UserResponse;
 import com.couple.sns.domain.post.service.PostService;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import java.util.ArrayList;
@@ -56,7 +54,7 @@ public class PostControllerTest {
     @WithMockUser(authorities = "USER")
     public void 전체_피드목록() throws Exception {
 
-        given(postService.list(any(Pageable.class))).willReturn(Page.empty());
+        given(postService.getPosts(any(Pageable.class))).willReturn(Page.empty());
 
         mockMvc.perform(get("/api/v1/posts")
                 .contentType(MediaType.APPLICATION_JSON)
@@ -69,7 +67,7 @@ public class PostControllerTest {
     @WithAnonymousUser
     public void 전체_피드목록_요청시_로그인하지않은경우() throws Exception {
 
-        given(postService.list(any())).willThrow(new SnsApplicationException(ErrorCode.USER_NOT_FOUND));
+        given(postService.getPosts(any())).willThrow(new SnsApplicationException(ErrorCode.USER_NOT_FOUND));
 
         mockMvc.perform(get("/api/vi/posts")
                 .contentType(MediaType.APPLICATION_JSON)
@@ -81,7 +79,7 @@ public class PostControllerTest {
     @WithMockUser(authorities = "USER")
     public void 내_피드목록() throws Exception {
 
-        given(postService.my(any(), any(Pageable.class))).willReturn(Page.empty());
+        given(postService.getMyPosts(any(), any(Pageable.class))).willReturn(Page.empty());
 
         mockMvc.perform(get("/api/v1/posts/my")
                 .contentType(MediaType.APPLICATION_JSON)
@@ -93,7 +91,7 @@ public class PostControllerTest {
     @WithAnonymousUser
     public void 내_피드목록_요청시_로그인하지않은경우() throws Exception {
 
-        given(postService.my(any(), any(Pageable.class))).willThrow(new SnsApplicationException(ErrorCode.USER_NOT_FOUND));
+        given(postService.getMyPosts(any(), any())).willThrow(new SnsApplicationException(ErrorCode.USER_NOT_FOUND));
 
         mockMvc.perform(get("/api/v1/posts/my")
                 .contentType(MediaType.APPLICATION_JSON)
@@ -107,12 +105,13 @@ public class PostControllerTest {
         String title = "title";
         String body = "body";
 
-        given(postService.create(eq(title), eq(body), any()))
-            .willReturn(Post.fromEntity(PostEntityFixture.get("userName", title, body)));
+        given(postService.create(any(), eq(PostDto.of(title, body))))
+            .willReturn(PostResponse.fromPost(
+                PostDto.from(PostEntityFixture.get("userName", title, body))));
 
         mockMvc.perform(post("/api/v1/posts")
                 .contentType(MediaType.APPLICATION_JSON)
-                .content(objectMapper.writeValueAsBytes(new PostCreateRequest(title, body)))
+                .content(objectMapper.writeValueAsBytes(new PostRequest(title, body)))
             ).andDo(print())
             .andExpect(status().isOk());
     }
@@ -123,11 +122,11 @@ public class PostControllerTest {
         String title = "title";
         String body = "body";
 
-        given(postService.create(eq(title), eq(body), any())).willThrow(new SnsApplicationException(ErrorCode.USER_NOT_FOUND));
+        given(postService.create(any(), any())).willThrow(new SnsApplicationException(ErrorCode.USER_NOT_FOUND));
 
         mockMvc.perform(post("/api/v1/posts")
                 .contentType(MediaType.APPLICATION_JSON)
-                .content(objectMapper.writeValueAsBytes(new PostCreateRequest(title, body)))
+                .content(objectMapper.writeValueAsBytes(new PostRequest(title, body)))
             ).andDo(print())
             .andExpect(status().isNotFound());
     }
@@ -138,12 +137,13 @@ public class PostControllerTest {
         String title = "modify_title";
         String body = "modify_body";
 
-        given(postService.modify(any(),any(), any(), any()))
-            .willReturn(PostResponse.fromPost(Post.fromEntity(PostEntityFixture.get("userName", title, body))));
+        given(postService.modify(any(),any(), any()))
+            .willReturn(PostResponse.fromPost(
+                PostDto.from(PostEntityFixture.get("userName", title, body))));
 
         mockMvc.perform(put( "/api/v1/posts/1")
                 .contentType(MediaType.APPLICATION_JSON)
-                .content(objectMapper.writeValueAsBytes(new PostModifyRequest(title, body)))
+                .content(objectMapper.writeValueAsBytes(new PostRequest(title, body)))
             ).andDo(print())
             .andExpect(status().isOk());
     }
@@ -196,7 +196,7 @@ public class PostControllerTest {
 
         Long postId = 1L;
         Long pageSize = 1L;
-        List<UserLikeResponse> users = new ArrayList<>();
+        List<UserResponse> users = new ArrayList<>();
 
         given(postService.likeList(eq(postId),any(Pageable.class))).willReturn(new LikeResponse(postId, pageSize, users));
 

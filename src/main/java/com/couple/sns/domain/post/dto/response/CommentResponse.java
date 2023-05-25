@@ -1,6 +1,6 @@
 package com.couple.sns.domain.post.dto.response;
 
-import com.couple.sns.domain.post.dto.Comment;
+import com.couple.sns.domain.post.dto.CommentDto;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 
@@ -13,12 +13,12 @@ public class CommentResponse {
     private String userName;
     private String content;
 
-    public static CommentResponse fromComment(Comment comment) {
+    public static CommentResponse fromComment(CommentDto commentDto) {
         return new CommentResponse(
-            comment.getPost().getId(),
-            comment.getId(),
-            comment.getUser().getUsername(),
-            comment.getContent()
+            commentDto.getPost().getId(),
+            commentDto.getId(),
+            commentDto.getUser().getUsername(),
+            commentDto.getContent()
         );
     }
 }
