@@ -1,7 +1,7 @@
 package com.couple.sns.domain.user.controller;
 
 import com.couple.sns.common.responce.Response;
-import com.couple.sns.domain.user.dto.User;
+import com.couple.sns.domain.user.dto.UserDto;
 import com.couple.sns.domain.user.dto.request.TokenReIssueRequest;
 import com.couple.sns.domain.user.dto.request.UserJoinRequest;
 import com.couple.sns.domain.user.dto.request.UserLoginRequest;
@@ -23,7 +23,7 @@ public class UserController {
 
     @PostMapping("/join")
     public Response<UserJoinResponse> join(@RequestBody UserJoinRequest userJoinRequest) {
-        User user = userUpdateService.join(
+        UserDto user = userUpdateService.join(
             userJoinRequest.getUserName(),
             userJoinRequest.getPassword(),
             userJoinRequest.getRole());

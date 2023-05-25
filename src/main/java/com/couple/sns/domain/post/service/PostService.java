@@ -2,11 +2,10 @@ package com.couple.sns.domain.post.service;
 
 import com.couple.sns.common.exception.ErrorCode;
 import com.couple.sns.common.exception.SnsApplicationException;
-import com.couple.sns.domain.post.dto.Like;
+import com.couple.sns.domain.post.dto.LikeDto;
 import com.couple.sns.domain.post.dto.LikeType;
-import com.couple.sns.domain.post.dto.Post;
+import com.couple.sns.domain.post.dto.PostDto;
 import com.couple.sns.domain.post.dto.response.LikeResponse;
-import com.couple.sns.domain.post.dto.response.PostIdResponse;
 import com.couple.sns.domain.post.dto.response.PostResponse;
 import com.couple.sns.domain.post.persistance.LikeEntity;
 import com.couple.sns.domain.post.persistance.PostEntity;
@@ -28,25 +27,27 @@ public class PostService {
     private final PostRepository postRepository;
     private final LikeRepository likeRepository;
 
-    public Page<Post> list(Pageable pageable) {
-       return postRepository.findAllJoinFetch(pageable).map(Post::fromEntity);
+    @Transactional(readOnly = true)
+    public Page<PostDto> getPosts(Pageable pageable) {
+       return postRepository.findAllJoinFetch(pageable).map(PostDto::fromEntity);
     }
 
-    public Page<Post> my(String userName, Pageable pageable) {
+    @Transactional(readOnly = true)
+    public Page<PostDto> getMyPosts(String userName, Pageable pageable) {
         UserEntity user = getUserOrElseThrow(userName);
-        return postRepository.findAllByUser(user, pageable).map(Post::fromEntity);
+        return postRepository.findAllByUser(user, pageable).map(PostDto::fromEntity);
     }
 
     @Transactional
-    public Post create(String title, String body, String userName) {
+    public PostResponse create(String userName, PostDto dto) {
         UserEntity user = getUserOrElseThrow(userName);
-        PostEntity post = postRepository.save(PostEntity.of(title, body, user));
+        PostEntity post = postRepository.save(dto.toEntity(user));
 
-        return Post.fromEntity(postRepository.saveAndFlush(post));
+        return PostResponse.fromPost(PostDto.fromEntity(post));
     }
 
     @Transactional
-    public PostResponse modify(Long postId, String title, String body, String userName) {
+    public PostResponse modify(Long postId, String userName, PostDto dto) {
         UserEntity user = getUserOrElseThrow(userName);
         PostEntity post = getPostOrElseThrow(postId);
 
@@ -54,10 +55,10 @@ public class PostService {
             throw new SnsApplicationException(ErrorCode.INVALID_PERMISSION, String.format("%s has no permission with %s", userName, postId));
         }
 
-        post.setTitle(title);
-        post.setBody(body);
+        post.setTitle(dto.getTitle());
+        post.setBody(dto.getBody());
 
-        return PostResponse.fromPost(Post.fromEntity(post));
+        return PostResponse.fromPost(PostDto.fromEntity(post));
     }
 
     @Transactional
@@ -90,7 +91,8 @@ public class PostService {
     public LikeResponse likeList(Long postId, Pageable pageable) {
         PostEntity post = getPostOrElseThrow(postId);
 
-        return LikeResponse.from(post.getId(), likeRepository.findAllByTypeAndTypeId(LikeType.POST, post.getId(), pageable).map(Like::fromEntity));
+        return LikeResponse.from(post.getId(), likeRepository.findAllByTypeAndTypeId(LikeType.POST, post.getId(), pageable).map(
+            LikeDto::fromEntity));
     }
 
     private UserEntity getUserOrElseThrow(String userName) {

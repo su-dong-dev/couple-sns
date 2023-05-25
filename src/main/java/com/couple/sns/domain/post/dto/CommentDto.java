@@ -1,19 +1,19 @@
 package com.couple.sns.domain.post.dto;
 
 import com.couple.sns.domain.post.persistance.CommentEntity;
-import com.couple.sns.domain.user.dto.User;
+import com.couple.sns.domain.user.dto.UserDto;
 import java.time.LocalDateTime;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 
 @Getter
 @AllArgsConstructor
-public class Comment {
+public class CommentDto {
 
     private Long id;
 
-    private User user;
-    private Post post;
+    private UserDto user;
+    private PostDto post;
 
     private String content;
 
@@ -21,11 +21,11 @@ public class Comment {
     private LocalDateTime updatedAt;
     private LocalDateTime deletedAt;
 
-    public static Comment fromEntity(CommentEntity commentEntity) {
-        return new Comment(
+    public static CommentDto fromEntity(CommentEntity commentEntity) {
+        return new CommentDto(
             commentEntity.getId(),
-            User.fromEntity(commentEntity.getUser()),
-            Post.fromEntity(commentEntity.getPost()),
+            UserDto.fromEntity(commentEntity.getUser()),
+            PostDto.fromEntity(commentEntity.getPost()),
             commentEntity.getContent(),
             commentEntity.getRegisteredAt(),
             commentEntity.getUpdatedAt(),

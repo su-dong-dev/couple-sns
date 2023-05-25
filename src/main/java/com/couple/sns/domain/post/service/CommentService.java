@@ -2,8 +2,8 @@ package com.couple.sns.domain.post.service;
 
 import com.couple.sns.common.exception.ErrorCode;
 import com.couple.sns.common.exception.SnsApplicationException;
-import com.couple.sns.domain.post.dto.Comment;
-import com.couple.sns.domain.post.dto.Like;
+import com.couple.sns.domain.post.dto.CommentDto;
+import com.couple.sns.domain.post.dto.LikeDto;
 import com.couple.sns.domain.post.dto.LikeType;
 import com.couple.sns.domain.post.dto.response.CommentResponse;
 import com.couple.sns.domain.post.dto.response.LikeResponse;
@@ -30,8 +30,8 @@ public class CommentService {
     private final CommentRepository commentRepository;
     private final LikeRepository likeRepository;
 
-    public Page<Comment> list(Long postId, Pageable pageable) {
-        return commentRepository.findByPostId(postId, pageable).map(Comment::fromEntity);
+    public Page<CommentDto> list(Long postId, Pageable pageable) {
+        return commentRepository.findByPostId(postId, pageable).map(CommentDto::fromEntity);
     }
 
     @Transactional
@@ -41,7 +41,7 @@ public class CommentService {
 
         CommentEntity commentEntity = CommentEntity.of(user, post, content);
 
-        return CommentResponse.fromComment(Comment.fromEntity(commentRepository.saveAndFlush(commentEntity)));
+        return CommentResponse.fromComment(CommentDto.fromEntity(commentRepository.saveAndFlush(commentEntity)));
     }
 
     @Transactional
@@ -76,7 +76,7 @@ public class CommentService {
 
         return LikeResponse.from(
             comment.getId(), likeRepository.findAllByTypeAndTypeId(LikeType.COMMENT, comment.getId(), pageable).map(
-            Like::fromEntity));
+            LikeDto::fromEntity));
 
     }
 

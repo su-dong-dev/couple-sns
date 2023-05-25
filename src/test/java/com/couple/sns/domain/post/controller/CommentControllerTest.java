@@ -14,7 +14,7 @@ import com.couple.sns.common.exception.ErrorCode;
 import com.couple.sns.common.exception.SnsApplicationException;
 import com.couple.sns.domain.post.dto.response.CommentResponse;
 import com.couple.sns.domain.post.dto.response.LikeResponse;
-import com.couple.sns.domain.post.dto.response.UserLikeResponse;
+import com.couple.sns.domain.post.dto.response.UserResponse;
 import com.couple.sns.domain.post.service.CommentService;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import java.util.ArrayList;
@@ -137,7 +137,7 @@ public class CommentControllerTest {
 
         Long commentId = 1L;
         Long pageSize = 1L;
-        List<UserLikeResponse> users = new ArrayList<>();
+        List<UserResponse> users = new ArrayList<>();
 
         given(commentService.likeList(eq(commentId),any(Pageable.class))).willReturn(new LikeResponse(commentId, pageSize, users));
 

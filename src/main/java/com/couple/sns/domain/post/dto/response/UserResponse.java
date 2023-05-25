@@ -5,13 +5,13 @@ import lombok.Getter;
 
 @Getter
 @AllArgsConstructor
-public class UserLikeResponse {
+public class UserResponse {
 
     private Long userId;
     private String userName;
 
-    public static UserLikeResponse fromUser(Long userId, String userName) {
-        return new UserLikeResponse(
+    public static UserResponse fromUser(Long userId, String userName) {
+        return new UserResponse(
             userId,
             userName
         );

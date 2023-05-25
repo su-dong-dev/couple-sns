@@ -1,11 +1,8 @@
 package com.couple.sns.domain.post.controller;
 
 import com.couple.sns.common.responce.Response;
-import com.couple.sns.domain.post.dto.Post;
-import com.couple.sns.domain.post.dto.request.PostCreateRequest;
-import com.couple.sns.domain.post.dto.request.PostModifyRequest;
+import com.couple.sns.domain.post.dto.request.PostRequest;
 import com.couple.sns.domain.post.dto.response.LikeResponse;
-import com.couple.sns.domain.post.dto.response.PostIdResponse;
 import com.couple.sns.domain.post.dto.response.PostResponse;
 import com.couple.sns.domain.post.service.PostService;
 import lombok.RequiredArgsConstructor;
@@ -29,28 +26,26 @@ public class PostController {
     private final PostService postService;
 
     @GetMapping
-    public Response<Page<PostResponse>> list(Pageable pageable) {
-        return Response.success(postService.list(pageable).map(PostResponse::fromPost));
+    public Response<Page<PostResponse>> getPosts(Pageable pageable) {
+        return Response.success(postService.getPosts(pageable).map(PostResponse::fromPost));
     }
 
     @GetMapping("/my")
-    public Response<Page<PostResponse>> my(Authentication authentication, Pageable pageable) {
-        return Response.success(postService.my(authentication.getName(), pageable).map(PostResponse::fromPost));
+    public Response<Page<PostResponse>> getMyPosts(Authentication authentication, Pageable pageable) {
+        return Response.success(postService.getMyPosts(authentication.getName(), pageable).map(PostResponse::fromPost));
     }
 
     @PostMapping
-    public Response<PostResponse> create(@RequestBody PostCreateRequest request,
-        Authentication authentication) {
-        Post post = postService.create(request.getTitle(), request.getBody(),
-            authentication.getName());
-        return Response.success(PostResponse.fromPost(post));
+    public Response<PostResponse> create(@RequestBody PostRequest request, Authentication authentication) {
+        return Response.success(postService.create(authentication.getName(), request.toDto()));
     }
 
     @PutMapping("/{postId}")
-    public Response<PostResponse> modify(@PathVariable Long postId,
-        @RequestBody PostModifyRequest request,
+    public Response<PostResponse> modify(
+        @PathVariable Long postId,
+        @RequestBody PostRequest request,
         Authentication authentication) {
-        return Response.success(postService.modify(postId, request.getBody(), request.getBody(), authentication.getName()));
+        return Response.success(postService.modify(postId, authentication.getName(), request.toDto()));
     }
 
     @DeleteMapping("/{postId}")

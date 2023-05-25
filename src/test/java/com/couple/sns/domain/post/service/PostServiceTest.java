@@ -3,7 +3,6 @@ package com.couple.sns.domain.post.service;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.BDDMockito.given;
 import static org.mockito.BDDMockito.then;
 import static org.mockito.Mockito.mock;
@@ -14,6 +13,7 @@ import com.couple.sns.domain.common.fixture.LikeEntityFixture;
 import com.couple.sns.domain.common.fixture.PostEntityFixture;
 import com.couple.sns.domain.common.fixture.UserEntityFixture;
 import com.couple.sns.domain.post.dto.LikeType;
+import com.couple.sns.domain.post.dto.PostDto;
 import com.couple.sns.domain.post.persistance.LikeEntity;
 import com.couple.sns.domain.post.persistance.PostEntity;
 import com.couple.sns.domain.post.persistance.repository.LikeRepository;
@@ -49,7 +49,7 @@ public class PostServiceTest {
 
         given(postRepository.findAllJoinFetch(pageable)).willReturn(Page.empty());
 
-        postService.list(pageable);
+        postService.getPosts(pageable);
 
         then(postRepository).should().findAllJoinFetch(any(Pageable.class));
     }
@@ -62,7 +62,7 @@ public class PostServiceTest {
         given(userRepository.findByUserName(userName)).willReturn(Optional.of(userEntity));
         given(postRepository.findAllByUser(userEntity, pageable)).willReturn(Page.empty());
 
-        postService.my(userName, pageable);
+        postService.getMyPosts(userName, pageable);
 
         then(userRepository).should().findByUserName(any(String.class));
         then(postRepository).should().findAllByUser(any(UserEntity.class), any(Pageable.class));
@@ -70,18 +70,15 @@ public class PostServiceTest {
 
     @Test
     public void 포스트_작성이_성공한_경우() {
-        given(userRepository.findByUserName(userName)).willReturn(Optional.of(
-            getUserEntity(userName, password)));
+        given(userRepository.findByUserName(userName)).willReturn(Optional.of(getUserEntity(userName, password)));
         given(postRepository.save(any())).willReturn(getPostEntity(userName, title, body));
-        given(postRepository.saveAndFlush(any())).willReturn(getPostEntity(userName, title, body));
 
         // when
-        postService.create(title, body, userName);
+        postService.create(userName, PostDto.of(title, body));
 
         // then
         then(userRepository).should().findByUserName(any(String.class));
-        then(postRepository).should().save(any(PostEntity.class));
-        then(postRepository).should().saveAndFlush(any(PostEntity.class));
+        then(postRepository).should().save(any());
     }
 
     @Test
@@ -89,8 +86,7 @@ public class PostServiceTest {
         given(userRepository.findByUserName(userName)).willReturn(Optional.empty());
 
         // when
-        SnsApplicationException e = assertThrows(SnsApplicationException.class, () -> postService.create(title, body,
-            userName));
+        SnsApplicationException e = assertThrows(SnsApplicationException.class, () -> postService.create(userName, PostDto.of(title, body)));
 
         // then
         assertEquals(ErrorCode.USER_NOT_FOUND, e.getErrorCode());
@@ -108,7 +104,7 @@ public class PostServiceTest {
 
         // when
         SnsApplicationException e = assertThrows(SnsApplicationException.class,
-            () -> postService.modify(postId, title, body, userName));
+            () -> postService.modify(postId, userName, any()));
 
         // then
         assertEquals(ErrorCode.POST_NOT_FOUND, e.getErrorCode());
@@ -125,7 +121,7 @@ public class PostServiceTest {
         given(postRepository.findById(postId)).willReturn(Optional.of(postEntity));
 
         // when
-        postService.modify(postId, title, body, userName);
+        postService.modify(postId, userName, PostDto.of(title, body));
 
         // then
         then(userRepository).should().findByUserName(any(String.class));
@@ -143,7 +139,7 @@ public class PostServiceTest {
 
         // when
         SnsApplicationException e = assertThrows(SnsApplicationException.class,
-            () -> postService.modify(postId, title, body, userName));
+            () -> postService.modify(postId, userName, PostDto.of(title, body)));
 
         // then
         assertEquals(ErrorCode.INVALID_PERMISSION, e.getErrorCode());

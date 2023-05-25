@@ -11,7 +11,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 
 import com.couple.sns.common.exception.ErrorCode;
 import com.couple.sns.common.exception.SnsApplicationException;
-import com.couple.sns.domain.user.dto.User;
+import com.couple.sns.domain.user.dto.UserDto;
 import com.couple.sns.domain.user.dto.UserRole;
 import com.couple.sns.domain.user.dto.request.TokenReIssueRequest;
 import com.couple.sns.domain.user.dto.request.UserJoinRequest;
@@ -42,7 +42,7 @@ public class UserControllerTest {
         String password = "password";
 
 
-        given(userUpdateService.join(userName, password, UserRole.USER)).willReturn(mock(User.class));
+        given(userUpdateService.join(userName, password, UserRole.USER)).willReturn(mock(UserDto.class));
 
         mockMvc.perform(post("/api/v1/users/join")
                         .contentType(MediaType.APPLICATION_JSON)
