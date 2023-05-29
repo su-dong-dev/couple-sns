@@ -1,12 +1,14 @@
 package com.couple.sns.domain.user.service;
 
-import static org.assertj.core.api.Assertions.assertThat;
-import static org.assertj.core.api.Assertions.catchThrowable;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.BDDMockito.given;
 import static org.mockito.BDDMockito.then;
 
 import com.couple.sns.common.configuration.util.JwtTokenUtils;
+import com.couple.sns.common.exception.ErrorCode;
+import com.couple.sns.common.exception.SnsApplicationException;
 import com.couple.sns.domain.common.fixture.UserEntityFixture;
 import com.couple.sns.domain.user.dto.UserDto;
 import com.couple.sns.domain.user.dto.UserRole;
@@ -41,7 +43,6 @@ class UserServiceTest {
     @Test
     void 회원가입_정상동작 (){
         // given
-        Long id = 1L;
         String userName = "userName";
         String password = "password";
 
@@ -58,7 +59,6 @@ class UserServiceTest {
     @Test
     void 회원가입시_이미_회원가입된_userName로_회원가입_하면_에러를_내뱉는다(){
         // given
-        Long id = 1L;
         String userName = "userName";
         String password = "password";
 
@@ -67,18 +67,16 @@ class UserServiceTest {
         given(userRepository.findByUserName(userName)).willReturn(Optional.of(fixture));
 
         // when
-        Throwable t = catchThrowable(() -> userService.join(UserDto.of(userName, password, UserRole.USER)));
+        SnsApplicationException e = assertThrows(SnsApplicationException.class, () -> userService.join(UserDto.of(userName, password, UserRole.USER)));
 
         // then
-        assertThat(t)
-            .isInstanceOf(IllegalStateException.class);
+        assertEquals(ErrorCode.DUPLICATED_USER_NAME, e.getErrorCode());
         then(userRepository).should().findByUserName(any(String.class));
     }
 
     @Test
     void 로그인_정상동작 (){
         // given
-        Long id = 1L;
         String userName = "userName";
         String password = "password";
 
@@ -98,25 +96,22 @@ class UserServiceTest {
     @Test
     void 로그인시_userName로_회원가입한_유저가_없는_경우 (){
         // given
-        Long id = 1L;
         String userName = "userName";
         String password = "password";
 
         given(userRepository.findByUserName(any())).willReturn(Optional.empty());
 
         // when
-        Throwable t = catchThrowable(() -> userService.login(userName, password));
+        SnsApplicationException e = assertThrows(SnsApplicationException.class, () -> userService.login(userName, password));
 
         // then
-        assertThat(t)
-            .isInstanceOf(IllegalArgumentException.class);
+        assertEquals(ErrorCode.USER_NOT_FOUND, e.getErrorCode());
         then(userRepository).should().findByUserName(any());
     }
 
     @Test
     void 로그인시_잘못된_password를_입력했을_경우() {
         // given
-        Long id = 1L;
         String userName = "userName";
         String password = "password";
         String wrongPassword = "wrongPassword";
@@ -126,11 +121,11 @@ class UserServiceTest {
         given(userRepository.findByUserName(any())).willReturn(Optional.of(fixture));
 
         // when
-        Throwable t = catchThrowable(() -> userService.login(userName, password));
+        SnsApplicationException e = assertThrows(SnsApplicationException.class, () -> userService.login(userName, wrongPassword));
 
         // then
-        assertThat(t)
-            .isInstanceOf(IllegalArgumentException.class);
+        assertEquals(ErrorCode.INVALID_PASSWORD, e.getErrorCode());
+
         then(userRepository).should().findByUserName(any());
     }
 
