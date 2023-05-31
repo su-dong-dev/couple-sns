@@ -5,9 +5,9 @@ import com.couple.sns.domain.user.dto.UserRole;
 import com.couple.sns.domain.user.persistance.UserEntity;
 
 public class PostEntityFixture {
-    public static PostEntity get(String userName, String password, String title, String body) {
-        UserEntity user = UserEntity.of(userName, password, UserRole.USER, "nickname", "phone", "profileImage");
+    public static PostEntity get(String username, String password, String content, String location) {
+        UserEntity user = UserEntity.of(username, password, UserRole.USER, "nickname", "phone", "profileImage");
 
-        return PostEntity.of(title, body, user);
+        return PostEntity.of(user, content, location);
     }
 }

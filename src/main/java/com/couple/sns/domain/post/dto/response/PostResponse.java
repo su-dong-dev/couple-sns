@@ -9,21 +9,19 @@ import lombok.Getter;
 @AllArgsConstructor
 public class PostResponse {
 
-    private Long postId;
-    private String userName;
-    private String title;
-    private String body;
-    private LocalDateTime registeredAt;
+    private String username;
+    private String content;
+    private String location;
+    private LocalDateTime createdAt;
     private LocalDateTime updatedAt;
 
 
     public static PostResponse fromPost(PostDto postDto) {
         return new PostResponse(
-            postDto.getId(),
             postDto.getUser().getUsername(),
-            postDto.getTitle(),
-            postDto.getBody(),
-            postDto.getRegisteredAt(),
+            postDto.getContent(),
+            postDto.getLocation(),
+            postDto.getCreatedAt(),
             postDto.getUpdatedAt()
         );
     }

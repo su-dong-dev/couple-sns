@@ -10,14 +10,13 @@ import lombok.Getter;
 @AllArgsConstructor
 public class CommentDto {
 
-    private Long id;
-
+    private Long commentId;
     private UserDto user;
     private PostDto post;
 
     private String content;
 
-    private LocalDateTime registeredAt;
+    private LocalDateTime createdAt;
     private LocalDateTime updatedAt;
     private LocalDateTime deletedAt;
 
@@ -27,7 +26,7 @@ public class CommentDto {
             UserDto.fromEntity(commentEntity.getUser()),
             PostDto.fromEntity(commentEntity.getPost()),
             commentEntity.getContent(),
-            commentEntity.getRegisteredAt(),
+            commentEntity.getCreatedAt(),
             commentEntity.getUpdatedAt(),
             commentEntity.getDeletedAt()
         );

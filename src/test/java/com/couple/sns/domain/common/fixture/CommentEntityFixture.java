@@ -6,10 +6,10 @@ import com.couple.sns.domain.user.dto.UserRole;
 import com.couple.sns.domain.user.persistance.UserEntity;
 
 public class CommentEntityFixture {
-    public static CommentEntity get(String username, String password, String title, String body, String content) {
+    public static CommentEntity get(String username, String password, String postContent, String location, String commentContent) {
         UserEntity user =  UserEntity.of(username, password, UserRole.USER, "nickname", "phone", "profileImage");
-        PostEntity post = PostEntity.of(title, body, user);
+        PostEntity post = PostEntity.of(user, postContent, location);
 
-        return CommentEntity.of(user, post, content);
+        return CommentEntity.of(user, post, commentContent);
     }
 }

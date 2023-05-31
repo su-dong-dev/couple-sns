@@ -3,15 +3,14 @@ package com.couple.sns.domain.post.service;
 import com.couple.sns.common.exception.ErrorCode;
 import com.couple.sns.common.exception.SnsApplicationException;
 import com.couple.sns.domain.post.dto.CommentDto;
-import com.couple.sns.domain.post.dto.LikeDto;
-import com.couple.sns.domain.post.dto.LikeType;
+import com.couple.sns.domain.post.dto.CommentLikeDto;
+import com.couple.sns.domain.post.dto.response.CommentLikeResponse;
 import com.couple.sns.domain.post.dto.response.CommentResponse;
-import com.couple.sns.domain.post.dto.response.LikeResponse;
 import com.couple.sns.domain.post.persistance.CommentEntity;
-import com.couple.sns.domain.post.persistance.LikeEntity;
+import com.couple.sns.domain.post.persistance.CommentLikeEntity;
 import com.couple.sns.domain.post.persistance.PostEntity;
+import com.couple.sns.domain.post.persistance.repository.CommentLikeRepository;
 import com.couple.sns.domain.post.persistance.repository.CommentRepository;
-import com.couple.sns.domain.post.persistance.repository.LikeRepository;
 import com.couple.sns.domain.post.persistance.repository.PostRepository;
 import com.couple.sns.domain.user.persistance.UserEntity;
 import com.couple.sns.domain.user.persistance.repository.UserRepository;
@@ -28,7 +27,7 @@ public class CommentService {
     private final UserRepository userRepository;
     private final PostRepository postRepository;
     private final CommentRepository commentRepository;
-    private final LikeRepository likeRepository;
+    private final CommentLikeRepository commentLikeRepository;
 
     public Page<CommentDto> list(Long postId, Pageable pageable) {
         return commentRepository.findByPostId(postId, pageable).map(CommentDto::fromEntity);
@@ -62,28 +61,29 @@ public class CommentService {
         CommentEntity comment = getCommentOrElseThrow(commentId);
         UserEntity user = getUserOrElseThrow(userName);
 
-        if (likeRepository.findByTypeAndTypeIdAndUser_Id(LikeType.COMMENT, comment.getId(), user.getId()).isEmpty()) {
-            likeRepository.save(LikeEntity.of(user, comment.getId(), LikeType.COMMENT));
+        if (commentLikeRepository.findByCommentIdAndUserId(comment.getId(), user.getId()).isEmpty()) {
+            commentLikeRepository.save(CommentLikeEntity.of(user, comment));
             return true;
         } else {
-            likeRepository.delete(likeRepository.findByTypeAndTypeIdAndUser_Id(LikeType.COMMENT, comment.getId(), user.getId()).get());
+            commentLikeRepository.delete(
+                commentLikeRepository.findByCommentIdAndUserId(comment.getId(), user.getId()).get());
             return false;
         }
     }
 
-    public LikeResponse likeList(Long commentId, Pageable pageable) {
+    public CommentLikeResponse likeList(Long commentId, Pageable pageable) {
         CommentEntity comment = getCommentOrElseThrow(commentId);
 
-        return LikeResponse.from(
-            comment.getId(), likeRepository.findAllByTypeAndTypeId(LikeType.COMMENT, comment.getId(), pageable).map(
-            LikeDto::fromEntity));
+        return CommentLikeResponse.from(
+            commentLikeRepository.findByCommentId(comment.getId(), pageable).map(
+            CommentLikeDto::fromEntity));
 
     }
 
-    private UserEntity getUserOrElseThrow(String userName) {
-        return userRepository.findByUsername(userName)
+    private UserEntity getUserOrElseThrow(String username) {
+        return userRepository.findByUsername(username)
             .orElseThrow(() -> new SnsApplicationException(ErrorCode.USER_NOT_FOUND,
-                String.format("%s not founded", userName)));
+                String.format("%s not founded", username)));
     }
 
     private PostEntity getPostOrElseThrow(Long postId) {

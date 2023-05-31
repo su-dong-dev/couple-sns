@@ -9,14 +9,13 @@ import static org.mockito.Mockito.mock;
 
 import com.couple.sns.common.exception.ErrorCode;
 import com.couple.sns.common.exception.SnsApplicationException;
-import com.couple.sns.domain.common.fixture.LikeEntityFixture;
 import com.couple.sns.domain.common.fixture.PostEntityFixture;
+import com.couple.sns.domain.common.fixture.PostLikeEntityFixture;
 import com.couple.sns.domain.common.fixture.UserEntityFixture;
-import com.couple.sns.domain.post.dto.LikeType;
 import com.couple.sns.domain.post.dto.PostDto;
-import com.couple.sns.domain.post.persistance.LikeEntity;
 import com.couple.sns.domain.post.persistance.PostEntity;
-import com.couple.sns.domain.post.persistance.repository.LikeRepository;
+import com.couple.sns.domain.post.persistance.PostLikeEntity;
+import com.couple.sns.domain.post.persistance.repository.PostLikeRepository;
 import com.couple.sns.domain.post.persistance.repository.PostRepository;
 import com.couple.sns.domain.user.persistance.UserEntity;
 import com.couple.sns.domain.user.persistance.repository.UserRepository;
@@ -34,10 +33,10 @@ public class PostServiceTest {
     @Autowired private PostService postService;
     @MockBean private PostRepository postRepository;
     @MockBean private UserRepository userRepository;
-    @MockBean private LikeRepository likeRepository;
+    @MockBean private PostLikeRepository postLikeRepository;
 
 
-    static String userName = "userName";
+    static String username = "username";
     static String password = "password";
     static Long postId = 1L;
     static String title = "title";
@@ -57,12 +56,12 @@ public class PostServiceTest {
     @Test
     public void 내_포스트_목록_요청이_성공한_경우() {
         Pageable pageable = mock(Pageable.class);
-        UserEntity userEntity = getUserEntity(userName, password);
+        UserEntity userEntity = getUserEntity(username, password);
 
-        given(userRepository.findByUsername(userName)).willReturn(Optional.of(userEntity));
+        given(userRepository.findByUsername(username)).willReturn(Optional.of(userEntity));
         given(postRepository.findAllByUser(userEntity, pageable)).willReturn(Page.empty());
 
-        postService.getMyPosts(userName, pageable);
+        postService.getMyPosts(username, pageable);
 
         then(userRepository).should().findByUsername(any(String.class));
         then(postRepository).should().findAllByUser(any(UserEntity.class), any(Pageable.class));
@@ -70,11 +69,12 @@ public class PostServiceTest {
 
     @Test
     public void 포스트_작성이_성공한_경우() {
-        given(userRepository.findByUsername(userName)).willReturn(Optional.of(getUserEntity(userName, password)));
-        given(postRepository.save(any())).willReturn(getPostEntity(userName, password, title, body));
+        given(userRepository.findByUsername(username)).willReturn(Optional.of(getUserEntity(
+            username, password)));
+        given(postRepository.save(any())).willReturn(getPostEntity(username, password, title, body));
 
         // when
-        postService.create(userName, PostDto.of(title, body));
+        postService.create(username, PostDto.of(title, body));
 
         // then
         then(userRepository).should().findByUsername(any(String.class));
@@ -83,10 +83,11 @@ public class PostServiceTest {
 
     @Test
     public void 포스트_작성시_요청한_userName가_존재하지않는경우() {
-        given(userRepository.findByUsername(userName)).willReturn(Optional.empty());
+        given(userRepository.findByUsername(username)).willReturn(Optional.empty());
 
         // when
-        SnsApplicationException e = assertThrows(SnsApplicationException.class, () -> postService.create(userName, PostDto.of(title, body)));
+        SnsApplicationException e = assertThrows(SnsApplicationException.class, () -> postService.create(
+            username, PostDto.of(title, body)));
 
         // then
         assertEquals(ErrorCode.USER_NOT_FOUND, e.getErrorCode());
@@ -96,15 +97,15 @@ public class PostServiceTest {
     @Test
     public void 포스트_수정시_포스트가_존재하지않은_경우() {
         // given
-        PostEntity postEntity = getPostEntity(userName, password, title, body);
+        PostEntity postEntity = getPostEntity(username, password, title, body);
         UserEntity userEntity = postEntity.getUser();
 
-        given(userRepository.findByUsername(userName)).willReturn(Optional.of(userEntity));
+        given(userRepository.findByUsername(username)).willReturn(Optional.of(userEntity));
         given(postRepository.findById(postId)).willReturn(Optional.empty());
 
         // when
         SnsApplicationException e = assertThrows(SnsApplicationException.class,
-            () -> postService.modify(postId, userName, any()));
+            () -> postService.modify(postId, username, any()));
 
         // then
         assertEquals(ErrorCode.POST_NOT_FOUND, e.getErrorCode());
@@ -114,14 +115,14 @@ public class PostServiceTest {
 
     @Test
     public void 포스트_수정이_성공한_경우() {
-        PostEntity postEntity = getPostEntity(userName, password, title, body);
+        PostEntity postEntity = getPostEntity(username, password, title, body);
         UserEntity userEntity = postEntity.getUser();
 
-        given(userRepository.findByUsername(userName)).willReturn(Optional.of(userEntity));
+        given(userRepository.findByUsername(username)).willReturn(Optional.of(userEntity));
         given(postRepository.findById(postId)).willReturn(Optional.of(postEntity));
 
         // when
-        postService.modify(postId, userName, PostDto.of(title, body));
+        postService.modify(postId, username, PostDto.of(title, body));
 
         // then
         then(userRepository).should().findByUsername(any(String.class));
@@ -131,15 +132,15 @@ public class PostServiceTest {
     @Test
     public void 포스트_수정시_권한이_없는경우() {
         // given
-        PostEntity postEntity = getPostEntity(userName, password, title, body);
+        PostEntity postEntity = getPostEntity(username, password, title, body);
         UserEntity userEntity = getUserEntity("userName2", password);
 
-        given(userRepository.findByUsername(userName)).willReturn(Optional.of(userEntity));
+        given(userRepository.findByUsername(username)).willReturn(Optional.of(userEntity));
         given(postRepository.findById(postId)).willReturn(Optional.of(postEntity));
 
         // when
         SnsApplicationException e = assertThrows(SnsApplicationException.class,
-            () -> postService.modify(postId, userName, PostDto.of(title, body)));
+            () -> postService.modify(postId, username, PostDto.of(title, body)));
 
         // then
         assertEquals(ErrorCode.INVALID_PERMISSION, e.getErrorCode());
@@ -149,14 +150,14 @@ public class PostServiceTest {
 
     @Test
     public void 포스트_삭제가_성공한_경우() {
-        PostEntity postEntity = getPostEntity(userName, password, title, body);
+        PostEntity postEntity = getPostEntity(username, password, title, body);
         UserEntity userEntity = postEntity.getUser();
 
-        given(userRepository.findByUsername(userName)).willReturn(Optional.of(userEntity));
+        given(userRepository.findByUsername(username)).willReturn(Optional.of(userEntity));
         given(postRepository.findById(postId)).willReturn(Optional.of(postEntity));
 
         // when
-        postService.delete(postId, userName);
+        postService.delete(postId, username);
 
         // then
         then(userRepository).should().findByUsername(any(String.class));
@@ -165,18 +166,15 @@ public class PostServiceTest {
 
     @Test
     public void 포스트_삭제시_포스트가_존재하지않은_경우() {
-        // given
-        PostEntity postEntity = getPostEntity(userName, password, title, body);
+        PostEntity postEntity = getPostEntity(username, password, title, body);
         UserEntity userEntity = postEntity.getUser();
 
-        given(userRepository.findByUsername(userName)).willReturn(Optional.of(userEntity));
+        given(userRepository.findByUsername(username)).willReturn(Optional.of(userEntity));
         given(postRepository.findById(postId)).willReturn(Optional.empty());
 
-        // when
         SnsApplicationException e = assertThrows(SnsApplicationException.class,
-            () -> postService.delete(postId, userName));
+            () -> postService.delete(postId, username));
 
-        // then
         assertEquals(ErrorCode.POST_NOT_FOUND, e.getErrorCode());
         then(userRepository).should().findByUsername(any(String.class));
         then(postRepository).should().findById(any(Long.class));
@@ -184,18 +182,15 @@ public class PostServiceTest {
 
     @Test
     public void 포스트_삭제시_권한이_없는경우() {
-        // given
-        PostEntity postEntity = getPostEntity(userName, password, title, body);
+        PostEntity postEntity = getPostEntity(username, password, title, body);
         UserEntity userEntity = getUserEntity("userName2", password);
 
-        given(userRepository.findByUsername(userName)).willReturn(Optional.of(userEntity));
+        given(userRepository.findByUsername(username)).willReturn(Optional.of(userEntity));
         given(postRepository.findById(postId)).willReturn(Optional.of(postEntity));
 
-        // when
         SnsApplicationException e = assertThrows(SnsApplicationException.class,
-            () -> postService.delete(postId, userName));
+            () -> postService.delete(postId, username));
 
-        // then
         assertEquals(ErrorCode.INVALID_PERMISSION, e.getErrorCode());
         then(userRepository).should().findByUsername(any(String.class));
         then(postRepository).should().findById(any(Long.class));
@@ -203,73 +198,66 @@ public class PostServiceTest {
 
     @Test
     public void 좋아요_버튼이_성공적으로_클릭된경우() {
-        PostEntity postEntity = getPostEntity(userName, password, title, body);
-        UserEntity userEntity = getUserEntity(userName,password);
+        PostEntity postEntity = getPostEntity(username, password, title, body);
+        UserEntity userEntity = getUserEntity(username,password);
 
-        given(userRepository.findByUsername(userName)).willReturn(Optional.of(userEntity));
+        given(userRepository.findByUsername(username)).willReturn(Optional.of(userEntity));
         given(postRepository.findById(postId)).willReturn(Optional.of(postEntity));
-        given(likeRepository.findByTypeAndTypeIdAndUser_Id(LikeType.POST, postEntity.getId(), userEntity.getId())).willReturn(Optional.empty());
-        given(likeRepository.save(any())).willReturn(any(LikeEntity.class));
+        given(postLikeRepository.findByPostIdAndUserId(postEntity.getId(), userEntity.getId())).willReturn(Optional.empty());
+        given(postLikeRepository.save(any())).willReturn(any(PostLikeEntity.class));
 
-        // when
-        postService.like(postId, userName);
+        postService.like(postId, username);
 
-        // then
         then(userRepository).should().findByUsername(any(String.class));
         then(postRepository).should().findById(any(Long.class));
-        then(likeRepository).should().findByTypeAndTypeIdAndUser_Id(any(), any(), any());
-        then(likeRepository).should().save(any(LikeEntity.class));
+        then(postLikeRepository).should().findByPostIdAndUserId(any(), any());
+        then(postLikeRepository).should().save(any(PostLikeEntity.class));
     }
 
     @Test
     public void 좋아요_버튼이_이미_클릭되어있는경우() {
-        // given
-        PostEntity postEntity = getPostEntity(userName, password, title, body);
-        UserEntity userEntity = getUserEntity(userName, password);
+        PostEntity postEntity = getPostEntity(username, password, title, body);
+        UserEntity userEntity = getUserEntity(username, password);
 
-        LikeEntity likeEntity = getLikeEntity(userEntity, postEntity.getId(), LikeType.POST);
+        PostLikeEntity postLikeEntity = getLikeEntity(userEntity, postEntity);
 
-        given(userRepository.findByUsername(userName)).willReturn(Optional.of(userEntity));
+        given(userRepository.findByUsername(username)).willReturn(Optional.of(userEntity));
         given(postRepository.findById(postId)).willReturn(Optional.of(postEntity));
-        given(likeRepository.findByTypeAndTypeIdAndUser_Id(LikeType.POST, postEntity.getId(), userEntity.getId())).willReturn(Optional.of(likeEntity));
+        given(postLikeRepository.findByPostIdAndUserId(postEntity.getId(), userEntity.getId())).willReturn(Optional.of(
+            postLikeEntity));
 
-        // when
-        postService.like(postId, userName);
+        postService.like(postId, username);
 
-        // then
         then(userRepository).should().findByUsername(any(String.class));
         then(postRepository).should().findById(any(Long.class));
-        then(likeRepository).should().delete(any(LikeEntity.class));
+        then(postLikeRepository).should().delete(any(PostLikeEntity.class));
     }
 
     @Test
     public void 포스트에_좋아요수와_좋아요누른_유저_리스트_출력() {
-        // given
         Pageable pageable = mock(Pageable.class);
-        PostEntity postEntity = getPostEntity(userName, password, title, body);
+        PostEntity postEntity = getPostEntity(username, password, title, body);
 
         given(postRepository.findById(postId)).willReturn(Optional.of(postEntity));
-        given(likeRepository.findAllByTypeAndTypeId(LikeType.POST, postEntity.getId(), pageable)).willReturn(Page.empty());
+        given(postLikeRepository.findByPostId(postEntity.getId(), pageable)).willReturn(Page.empty());
 
-        // when
         postService.likeList(postId, pageable);
 
-        // then
         then(postRepository).should().findById(any(Long.class));
-        then(likeRepository).should().findAllByTypeAndTypeId(any(), any(), any());
+        then(postLikeRepository).should().findByPostId(any(), any());
     }
 
 
-    private UserEntity getUserEntity(String userName, String password) {
-        return UserEntityFixture.get(userName, password);
+    private UserEntity getUserEntity(String username, String password) {
+        return UserEntityFixture.get(username, password);
     }
 
-    private PostEntity getPostEntity(String userName, String password, String title, String body) {
-        return PostEntityFixture.get(userName, password, title, body);
+    private PostEntity getPostEntity(String username, String password, String title, String body) {
+        return PostEntityFixture.get(username, password, title, body);
     }
 
-    private LikeEntity getLikeEntity(UserEntity user, Long typeId, LikeType type) {
-        return LikeEntityFixture.get(user, typeId, type);
+    private PostLikeEntity getLikeEntity(UserEntity user, PostEntity post) {
+        return PostLikeEntityFixture.get(user, post);
     }
 
 }

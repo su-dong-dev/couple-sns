@@ -8,13 +8,13 @@ import lombok.Getter;
 @AllArgsConstructor
 public class PostRequest {
 
-    private String title;
-    private String body;
+    private String content;
+    private String location;
 
     public PostDto toDto() {
         return PostDto.of(
-            title,
-            body
+            content,
+            location
         );
     }
 

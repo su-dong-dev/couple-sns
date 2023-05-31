@@ -2,7 +2,7 @@ package com.couple.sns.domain.post.controller;
 
 import com.couple.sns.common.responce.Response;
 import com.couple.sns.domain.post.dto.request.PostRequest;
-import com.couple.sns.domain.post.dto.response.LikeResponse;
+import com.couple.sns.domain.post.dto.response.PostLikeResponse;
 import com.couple.sns.domain.post.dto.response.PostResponse;
 import com.couple.sns.domain.post.service.PostService;
 import lombok.RequiredArgsConstructor;
@@ -60,7 +60,7 @@ public class PostController {
     }
 
     @GetMapping("/{postId}/likes")
-    public Response<LikeResponse> likeList(@PathVariable Long postId, Pageable pageable) {
+    public Response<PostLikeResponse> likeList(@PathVariable Long postId, Pageable pageable) {
         return Response.success(postService.likeList(postId, pageable));
     }
 }

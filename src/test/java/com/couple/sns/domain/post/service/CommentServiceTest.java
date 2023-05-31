@@ -10,15 +10,15 @@ import static org.mockito.Mockito.mock;
 import com.couple.sns.common.exception.ErrorCode;
 import com.couple.sns.common.exception.SnsApplicationException;
 import com.couple.sns.domain.common.fixture.CommentEntityFixture;
-import com.couple.sns.domain.common.fixture.LikeEntityFixture;
+import com.couple.sns.domain.common.fixture.CommentLikeEntityFixture;
 import com.couple.sns.domain.common.fixture.PostEntityFixture;
 import com.couple.sns.domain.common.fixture.UserEntityFixture;
-import com.couple.sns.domain.post.dto.LikeType;
 import com.couple.sns.domain.post.persistance.CommentEntity;
-import com.couple.sns.domain.post.persistance.LikeEntity;
+import com.couple.sns.domain.post.persistance.CommentLikeEntity;
 import com.couple.sns.domain.post.persistance.PostEntity;
+import com.couple.sns.domain.post.persistance.PostLikeEntity;
+import com.couple.sns.domain.post.persistance.repository.CommentLikeRepository;
 import com.couple.sns.domain.post.persistance.repository.CommentRepository;
-import com.couple.sns.domain.post.persistance.repository.LikeRepository;
 import com.couple.sns.domain.post.persistance.repository.PostRepository;
 import com.couple.sns.domain.user.persistance.UserEntity;
 import com.couple.sns.domain.user.persistance.repository.UserRepository;
@@ -33,16 +33,13 @@ import org.springframework.data.domain.Pageable;
 @SpringBootTest
 public class CommentServiceTest {
 
-    @Autowired
-    private CommentService commentService;
-    @MockBean
-    private PostRepository postRepository;
+    @Autowired private CommentService commentService;
+    @MockBean private PostRepository postRepository;
     @MockBean private UserRepository userRepository;
     @MockBean private CommentRepository commentRepository;
-    @MockBean
-    private LikeRepository likeRepository;
+    @MockBean private CommentLikeRepository commentLikeRepository;
 
-    static String userName = "userName";
+    static String username = "username";
     static String password = "password";
     static Long postId = 1L;
     static String title = "title";
@@ -62,11 +59,12 @@ public class CommentServiceTest {
 
     @Test
     public void 댓글작성_성공() {
-        given(userRepository.findByUsername(userName)).willReturn(Optional.of(getUserEntity(userName, password)));
-        given(postRepository.findById(postId)).willReturn(Optional.of(getPostEntity(userName, password, title, body)));
-        given(commentRepository.saveAndFlush(any())).willReturn(CommentEntityFixture.get(userName, password, title, body, content));
+        given(userRepository.findByUsername(username)).willReturn(Optional.of(getUserEntity(
+            username, password)));
+        given(postRepository.findById(postId)).willReturn(Optional.of(getPostEntity(username, password, title, body)));
+        given(commentRepository.saveAndFlush(any())).willReturn(CommentEntityFixture.get(username, password, title, body, content));
 
-        commentService.create(userName, postId, content);
+        commentService.create(username, postId, content);
 
         then(userRepository).should().findByUsername(any(String.class));
         then(postRepository).should().findById(any(Long.class));
@@ -75,11 +73,11 @@ public class CommentServiceTest {
 
     @Test
     public void 댓글작성시_유저가_존재하지않는경우() {
-        given(postRepository.findById(postId)).willReturn(Optional.of(getPostEntity(userName, password, title, body)));
-        given(userRepository.findByUsername(userName)).willReturn(Optional.empty());
+        given(postRepository.findById(postId)).willReturn(Optional.of(getPostEntity(username, password, title, body)));
+        given(userRepository.findByUsername(username)).willReturn(Optional.empty());
 
         SnsApplicationException e = assertThrows(SnsApplicationException.class,
-            () -> commentService.create(userName, postId, content));
+            () -> commentService.create(username, postId, content));
 
         assertEquals(ErrorCode.USER_NOT_FOUND, e.getErrorCode());
         then(postRepository).should().findById(any(Long.class));
@@ -91,7 +89,7 @@ public class CommentServiceTest {
         given(postRepository.findById(postId)).willReturn(Optional.empty());
 
         SnsApplicationException e = assertThrows(SnsApplicationException.class,
-            () -> commentService.create(userName, postId, content));
+            () -> commentService.create(username, postId, content));
 
         assertEquals(ErrorCode.POST_NOT_FOUND, e.getErrorCode());
         then(postRepository).should().findById(any(Long.class));
@@ -100,13 +98,13 @@ public class CommentServiceTest {
 
     @Test
     public void 댓글삭제_성공() {
-        CommentEntity comment = getCommentEntity(userName, password, title, body, content);
+        CommentEntity comment = getCommentEntity(username, password, title, body, content);
         UserEntity user = comment.getUser();
 
-        given(userRepository.findByUsername(userName)).willReturn(Optional.of(user));
+        given(userRepository.findByUsername(username)).willReturn(Optional.of(user));
         given(commentRepository.findById(commentId)).willReturn(Optional.of(comment));
 
-        commentService.delete(userName, commentId);
+        commentService.delete(username, commentId);
 
         then(userRepository).should().findByUsername(any());
         then(commentRepository).should().findById(any());
@@ -115,14 +113,14 @@ public class CommentServiceTest {
 
     @Test
     public void 댓글삭제시_댓글을_작성한_유저가아닌경우() {
-        CommentEntity comment = getCommentEntity(userName, password, title, body, content);
+        CommentEntity comment = getCommentEntity(username, password, title, body, content);
         UserEntity user = getUserEntity("userName2", password);
 
-        given(userRepository.findByUsername(userName)).willReturn(Optional.of(user));
+        given(userRepository.findByUsername(username)).willReturn(Optional.of(user));
         given(commentRepository.findById(commentId)).willReturn(Optional.of(comment));
 
         SnsApplicationException e = assertThrows(SnsApplicationException.class,
-            () -> commentService.delete(userName, commentId));
+            () -> commentService.delete(username, commentId));
 
         assertEquals(ErrorCode.INVALID_PERMISSION, e.getErrorCode());
         then(userRepository).should().findByUsername(any());
@@ -131,76 +129,69 @@ public class CommentServiceTest {
 
     @Test
     public void 좋아요_버튼이_성공적으로_클릭된경우() {
-        CommentEntity commentEntity = getCommentEntity(userName, password, title, body, content);
-        UserEntity userEntity = getUserEntity(userName,password);
+        CommentEntity commentEntity = getCommentEntity(username, password, title, body, content);
+        UserEntity userEntity = getUserEntity(username,password);
 
-        given(userRepository.findByUsername(userName)).willReturn(Optional.of(userEntity));
+        given(userRepository.findByUsername(username)).willReturn(Optional.of(userEntity));
         given(commentRepository.findById(commentId)).willReturn(Optional.of(commentEntity));
-        given(likeRepository.findByTypeAndTypeIdAndUser_Id(LikeType.COMMENT, commentEntity.getId(), userEntity.getId())).willReturn(Optional.empty());
-        given(likeRepository.save(any())).willReturn(any(LikeEntity.class));
+        given(commentLikeRepository.findByCommentIdAndUserId(commentEntity.getId(), userEntity.getId())).willReturn(Optional.empty());
+        given(commentLikeRepository.save(any())).willReturn(any(PostLikeEntity.class));
 
-        // when
-        commentService.like(commentId, userName);
+        commentService.like(commentId, username);
 
-        // then
         then(userRepository).should().findByUsername(any(String.class));
         then(commentRepository).should().findById(any(Long.class));
-        then(likeRepository).should().findByTypeAndTypeIdAndUser_Id(any(), any(), any());
-        then(likeRepository).should().save(any(LikeEntity.class));
+        then(commentLikeRepository).should().findByCommentIdAndUserId(any(), any());
+        then(commentLikeRepository).should().save(any(CommentLikeEntity.class));
     }
 
     @Test
     public void 좋아요_버튼이_이미_클릭되어있는경우() {
-        // given
-        CommentEntity commentEntity = getCommentEntity(userName, password, title, body, content);
-        UserEntity userEntity = getUserEntity(userName, password);
+        CommentEntity commentEntity = getCommentEntity(username, password, title, body, content);
+        UserEntity userEntity = getUserEntity(username, password);
 
-        LikeEntity likeEntity = getLikeEntity(userEntity, commentEntity.getId(), LikeType.COMMENT);
+        CommentLikeEntity commentLikeEntity = getLikeEntity(userEntity, commentEntity);
 
-        given(userRepository.findByUsername(userName)).willReturn(Optional.of(userEntity));
+        given(userRepository.findByUsername(username)).willReturn(Optional.of(userEntity));
         given(commentRepository.findById(commentId)).willReturn(Optional.of(commentEntity));
-        given(likeRepository.findByTypeAndTypeIdAndUser_Id(LikeType.COMMENT, commentEntity.getId(), userEntity.getId())).willReturn(Optional.of(likeEntity));
+        given(commentLikeRepository.findByCommentIdAndUserId(commentEntity.getId(), userEntity.getId())).willReturn(Optional.of(
+            commentLikeEntity));
 
-        // when
-        commentService.like(commentId, userName);
+        commentService.like(commentId, username);
 
-        // then
         then(userRepository).should().findByUsername(any(String.class));
         then(commentRepository).should().findById(any(Long.class));
-        then(likeRepository).should().delete(any(LikeEntity.class));
+        then(commentLikeRepository).should().delete(any(CommentLikeEntity.class));
     }
 
     @Test
     public void 댓글에_좋아요수와_좋아요누른_유저_리스트_출력() {
-        // given
         Pageable pageable = mock(Pageable.class);
-        CommentEntity comment = getCommentEntity(userName, password, title, body, content);
+        CommentEntity comment = getCommentEntity(username, password, title, body, content);
 
         given(commentRepository.findById(commentId)).willReturn(Optional.of(comment));
-        given(likeRepository.findAllByTypeAndTypeId(LikeType.COMMENT, comment.getId(), pageable)).willReturn(Page.empty());
+        given(commentLikeRepository.findByCommentId(comment.getId(), pageable)).willReturn(Page.empty());
 
-        // when
         commentService.likeList(commentId, pageable);
 
-        // then
         then(commentRepository).should().findById(any(Long.class));
-        then(likeRepository).should().findAllByTypeAndTypeId(any(), any(), any());
+        then(commentLikeRepository).should().findByCommentId(any(), any());
     }
 
-    private UserEntity getUserEntity(String userName, String password) {
-        return UserEntityFixture.get(userName, password);
+    private UserEntity getUserEntity(String username, String password) {
+        return UserEntityFixture.get(username, password);
     }
 
-    private PostEntity getPostEntity(String userName, String password, String title, String body) {
-        return PostEntityFixture.get(userName, password, title, body);
+    private PostEntity getPostEntity(String username, String password, String title, String body) {
+        return PostEntityFixture.get(username, password, title, body);
     }
 
-    private CommentEntity getCommentEntity(String userName, String password, String title, String body, String content) {
-        return CommentEntityFixture.get(userName, password, title, body, content);
+    private CommentEntity getCommentEntity(String username, String password, String title, String body, String content) {
+        return CommentEntityFixture.get(username, password, title, body, content);
     }
 
-    private LikeEntity getLikeEntity(UserEntity user, Long typeId, LikeType type) {
-        return LikeEntityFixture.get(user, typeId, type);
+    private CommentLikeEntity getLikeEntity(UserEntity user, CommentEntity comment) {
+        return CommentLikeEntityFixture.get(user, comment);
     }
 
 

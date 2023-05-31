@@ -21,28 +21,28 @@ import org.hibernate.annotations.Where;
 @Getter
 @Entity
 @Table(name = "post")
-@SQLDelete(sql = "UPDATE post SET deleted_at = NOW() WHERE id = ?")
+@SQLDelete(sql = "UPDATE post SET deleted_at = NOW() WHERE post_id = ?")
 @Where(clause = "deleted_at is NULL")
 public class PostEntity {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @Column(name = "post_id")
     private Long id;
 
-    @Setter
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "user_id")
     private UserEntity user;
 
     @Setter
-    private String title;
+    private String content;
 
     @Setter
-    @Column(columnDefinition = "TEXT")
-    private String body;
+    @Column(length = 50)
+    private String location;
 
     @CreationTimestamp
-    private LocalDateTime registeredAt;
+    private LocalDateTime createdAt;
 
     @UpdateTimestamp
     private LocalDateTime updatedAt;
@@ -51,13 +51,13 @@ public class PostEntity {
     protected PostEntity() {
     }
 
-    private PostEntity(UserEntity userEntity, String title, String body) {
+    private PostEntity(UserEntity userEntity, String content, String location) {
         this.user = userEntity;
-        this.title = title;
-        this.body = body;
+        this.content = content;
+        this.location = location;
     }
 
-    public static PostEntity of(String title, String body, UserEntity userEntity) {
-        return new PostEntity(userEntity, title, body);
+    public static PostEntity of(UserEntity userEntity, String content, String location) {
+        return new PostEntity(userEntity, content, location);
     }
 }
