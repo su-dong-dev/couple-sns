@@ -23,7 +23,7 @@
 <br>
 
 ### 💎 DB ERD 구조
-![erd-image](https://github.com/su-dong-dev/couple-sns/assets/43313866/84e91500-0dc3-4c0e-a214-db2b85c1030c)
+![erd-image](https://github.com/su-dong-dev/couple-sns/assets/43313866/9df280c2-f62b-401f-8c56-c8d127241407)
 
 <br>
 
