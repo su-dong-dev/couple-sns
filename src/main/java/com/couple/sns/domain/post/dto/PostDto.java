@@ -11,32 +11,33 @@ import lombok.Getter;
 @AllArgsConstructor
 public class PostDto {
 
-    private Long id;
-    private String title;
-    private String body;
+    private Long postId;
+
+    private String content;
+    private String location;
 
     private UserDto user;
 
-    private LocalDateTime registeredAt;
+    private LocalDateTime createdAt;
     private LocalDateTime updatedAt;
     private LocalDateTime deletedAt;
 
-    public static PostDto of(Long id, String title, String body, UserDto user,
-        LocalDateTime registeredAt, LocalDateTime updatedAt, LocalDateTime deletedAt) {
-        return new PostDto(id, title, body, user, registeredAt, updatedAt, deletedAt);
+    public static PostDto of(Long postId, String content, String location, UserDto user,
+        LocalDateTime createdAt, LocalDateTime updatedAt, LocalDateTime deletedAt) {
+        return new PostDto(postId, content, location, user, createdAt, updatedAt, deletedAt);
     }
 
-    public static PostDto of(String title, String body) {
-        return new PostDto(null, title, body, null, null, null, null);
+    public static PostDto of(String content, String location) {
+        return new PostDto(null, content, location, null, null, null, null);
     }
 
     public static PostDto fromEntity(PostEntity postEntity) {
         return new PostDto(
             postEntity.getId(),
-            postEntity.getTitle(),
-            postEntity.getBody(),
+            postEntity.getContent(),
+            postEntity.getLocation(),
             UserDto.fromEntity(postEntity.getUser()),
-            postEntity.getRegisteredAt(),
+            postEntity.getCreatedAt(),
             postEntity.getUpdatedAt(),
             postEntity.getDeletedAt()
         );
@@ -44,9 +45,9 @@ public class PostDto {
 
     public PostEntity toEntity(UserEntity user) {
         return PostEntity.of(
-            title,
-            body,
-            user
+            user,
+            content,
+            location
         );
     }
 

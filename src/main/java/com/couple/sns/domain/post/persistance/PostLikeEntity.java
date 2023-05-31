@@ -19,14 +19,14 @@ import org.hibernate.annotations.Where;
 
 @Getter
 @Entity
-@Table(name = "comment")
-@SQLDelete(sql = "UPDATE comment SET deleted_at = NOW() WHERE comment_id = ?")
+@Table(name = "post_like")
+@SQLDelete(sql = "UPDATE post_like SET deleted_at = NOW() WHERE post_like_id = ?")
 @Where(clause = "deleted_at is NULL")
-public class CommentEntity {
+public class PostLikeEntity {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Column(name = "comment_id")
+    @Column(name = "post_like_id")
     private Long id;
 
     @ManyToOne(fetch = FetchType.LAZY)
@@ -37,8 +37,6 @@ public class CommentEntity {
     @JoinColumn(name = "post_id")
     private PostEntity post;
 
-    private String content;
-
     @CreationTimestamp
     private LocalDateTime createdAt;
 
@@ -46,16 +44,15 @@ public class CommentEntity {
     private LocalDateTime updatedAt;
     private LocalDateTime deletedAt;
 
-    protected CommentEntity() {
+    protected PostLikeEntity() {
     }
 
-    private CommentEntity(UserEntity user, PostEntity post, String content) {
-        this.user = user;
-        this.post = post;
-        this.content = content;
+    private PostLikeEntity(UserEntity userEntity, PostEntity postEntity) {
+        this.user = userEntity;
+        this.post = postEntity;
     }
 
-    public static CommentEntity of(UserEntity user, PostEntity post, String content) {
-        return new CommentEntity(user, post, content);
+    public static PostLikeEntity of(UserEntity userEntity, PostEntity postEntity) {
+        return new PostLikeEntity(userEntity, postEntity);
     }
 }

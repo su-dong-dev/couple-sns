@@ -19,14 +19,14 @@ import org.hibernate.annotations.Where;
 
 @Getter
 @Entity
-@Table(name = "comment")
-@SQLDelete(sql = "UPDATE comment SET deleted_at = NOW() WHERE comment_id = ?")
+@Table(name = "image")
+@SQLDelete(sql = "UPDATE image SET deleted_at = NOW() WHERE image_id = ?")
 @Where(clause = "deleted_at is NULL")
-public class CommentEntity {
+public class ImageEntity {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Column(name = "comment_id")
+    @Column(name = "image_id")
     private Long id;
 
     @ManyToOne(fetch = FetchType.LAZY)
@@ -37,7 +37,7 @@ public class CommentEntity {
     @JoinColumn(name = "post_id")
     private PostEntity post;
 
-    private String content;
+    private String fileName;
 
     @CreationTimestamp
     private LocalDateTime createdAt;
@@ -46,16 +46,16 @@ public class CommentEntity {
     private LocalDateTime updatedAt;
     private LocalDateTime deletedAt;
 
-    protected CommentEntity() {
+    protected ImageEntity() {
     }
 
-    private CommentEntity(UserEntity user, PostEntity post, String content) {
-        this.user = user;
-        this.post = post;
-        this.content = content;
+    private ImageEntity(UserEntity userEntity, PostEntity postEntity, String fileName) {
+        this.user = userEntity;
+        this.post = postEntity;
+        this.fileName = fileName;
     }
 
-    public static CommentEntity of(UserEntity user, PostEntity post, String content) {
-        return new CommentEntity(user, post, content);
+    public static ImageEntity of(UserEntity userEntity, PostEntity postEntity, String fileName) {
+        return new ImageEntity(userEntity, postEntity, fileName);
     }
 }

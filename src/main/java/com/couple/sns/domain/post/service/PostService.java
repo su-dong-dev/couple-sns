@@ -2,14 +2,13 @@ package com.couple.sns.domain.post.service;
 
 import com.couple.sns.common.exception.ErrorCode;
 import com.couple.sns.common.exception.SnsApplicationException;
-import com.couple.sns.domain.post.dto.LikeDto;
-import com.couple.sns.domain.post.dto.LikeType;
+import com.couple.sns.domain.post.dto.PostLikeDto;
 import com.couple.sns.domain.post.dto.PostDto;
-import com.couple.sns.domain.post.dto.response.LikeResponse;
+import com.couple.sns.domain.post.dto.response.PostLikeResponse;
 import com.couple.sns.domain.post.dto.response.PostResponse;
-import com.couple.sns.domain.post.persistance.LikeEntity;
+import com.couple.sns.domain.post.persistance.PostLikeEntity;
 import com.couple.sns.domain.post.persistance.PostEntity;
-import com.couple.sns.domain.post.persistance.repository.LikeRepository;
+import com.couple.sns.domain.post.persistance.repository.PostLikeRepository;
 import com.couple.sns.domain.post.persistance.repository.PostRepository;
 import com.couple.sns.domain.user.persistance.UserEntity;
 import com.couple.sns.domain.user.persistance.repository.UserRepository;
@@ -25,7 +24,7 @@ public class PostService {
 
     private final UserRepository userRepository;
     private final PostRepository postRepository;
-    private final LikeRepository likeRepository;
+    private final PostLikeRepository postLikeRepository;
 
     @Transactional(readOnly = true)
     public Page<PostDto> getPosts(Pageable pageable) {
@@ -33,72 +32,73 @@ public class PostService {
     }
 
     @Transactional(readOnly = true)
-    public Page<PostDto> getMyPosts(String userName, Pageable pageable) {
-        UserEntity user = getUserOrElseThrow(userName);
+    public Page<PostDto> getMyPosts(String username, Pageable pageable) {
+        UserEntity user = getUserOrElseThrow(username);
         return postRepository.findAllByUser(user, pageable).map(PostDto::fromEntity);
     }
 
     @Transactional
-    public PostResponse create(String userName, PostDto dto) {
-        UserEntity user = getUserOrElseThrow(userName);
+    public PostResponse create(String username, PostDto dto) {
+        UserEntity user = getUserOrElseThrow(username);
         PostEntity post = postRepository.save(dto.toEntity(user));
 
         return PostResponse.fromPost(PostDto.fromEntity(post));
     }
 
     @Transactional
-    public PostResponse modify(Long postId, String userName, PostDto dto) {
-        UserEntity user = getUserOrElseThrow(userName);
+    public PostResponse modify(Long postId, String username, PostDto dto) {
+        UserEntity user = getUserOrElseThrow(username);
         PostEntity post = getPostOrElseThrow(postId);
 
         if (post.getUser() != user) {
-            throw new SnsApplicationException(ErrorCode.INVALID_PERMISSION, String.format("%s has no permission with %s", userName, postId));
+            throw new SnsApplicationException(ErrorCode.INVALID_PERMISSION, String.format("%s has no permission with %s", username, postId));
         }
 
-        post.setTitle(dto.getTitle());
-        post.setBody(dto.getBody());
+        post.setContent(dto.getContent());
+        post.setLocation(dto.getLocation());
 
         return PostResponse.fromPost(PostDto.fromEntity(post));
     }
 
     @Transactional
-    public void delete(Long postId, String userName) {
-        UserEntity user = getUserOrElseThrow(userName);
+    public void delete(Long postId, String username) {
+        UserEntity user = getUserOrElseThrow(username);
         PostEntity post = getPostOrElseThrow(postId);
 
         if (post.getUser() != user) {
-            throw new SnsApplicationException(ErrorCode.INVALID_PERMISSION, String.format("%s has no permission with %s", userName, postId));
+            throw new SnsApplicationException(ErrorCode.INVALID_PERMISSION, String.format("%s has no permission with %s", username, postId));
         }
 
         postRepository.delete(post);
     }
 
     @Transactional
-    public Boolean like(Long postId, String userName) {
+    public Boolean like(Long postId, String username) {
 
         PostEntity post = getPostOrElseThrow(postId);
-        UserEntity user = getUserOrElseThrow(userName);
+        UserEntity user = getUserOrElseThrow(username);
 
-        if (likeRepository.findByTypeAndTypeIdAndUser_Id(LikeType.POST, post.getId(), user.getId()).isEmpty()) {
-            likeRepository.save(LikeEntity.of(user, post.getId(), LikeType.POST));
+        if (postLikeRepository.findByPostIdAndUserId(post.getId(), user.getId()).isEmpty()) {
+            postLikeRepository.save(PostLikeEntity.of(user, post));
             return true;
         } else {
-            likeRepository.delete(likeRepository.findByTypeAndTypeIdAndUser_Id(LikeType.POST, post.getId(), user.getId()).get());
+            postLikeRepository.delete(
+                postLikeRepository.findByPostIdAndUserId(post.getId(), user.getId()).get());
             return false;
         }
     }
 
-    public LikeResponse likeList(Long postId, Pageable pageable) {
+    public PostLikeResponse likeList(Long postId, Pageable pageable) {
         PostEntity post = getPostOrElseThrow(postId);
 
-        return LikeResponse.from(post.getId(), likeRepository.findAllByTypeAndTypeId(LikeType.POST, post.getId(), pageable).map(
-            LikeDto::fromEntity));
+        return PostLikeResponse.from(postLikeRepository.findByPostId(post.getId(), pageable).map(
+            PostLikeDto::fromEntity));
     }
 
-    private UserEntity getUserOrElseThrow(String userName) {
-        return userRepository.findByUsername(userName)
+    private UserEntity getUserOrElseThrow(String username) {
+        return userRepository.findByUsername(username)
             .orElseThrow(() -> new SnsApplicationException(ErrorCode.USER_NOT_FOUND,
-                String.format("%s not founded", userName)));
+                String.format("%s not founded", username)));
     }
 
     private PostEntity getPostOrElseThrow(Long postId) {
