@@ -1,10 +1,14 @@
 ## 🫶🏻 COUPLE-SNS
 ### 커플들의 추억을 기록하고 추억할 수 있는 커플전용 SNS
-커플만의 추억을 기록하고 추억할 수 있는 소셜 네트워크 서비스입니다.
+커플소셜 네트워크 서비스입니다.
+
+<br>
 
 ### 🚀 기술 스택
 - Front-end : `JavaScript`, `React-native`
 - Back-end : `Java`, `SpringBoot`, `SpringDataJPA`, `SpringSecurity`, `MySQL`, `AWS`, `Junit5`
+
+<br>
 
 ### ✨ 프로젝트 설명
 * [x] AWS S3를 통한 배포 및 GitHub Actions를 통한 CI/CD
@@ -16,7 +20,12 @@
 * [x] 댓글, 댓글 좋아요 기능 구현
 * [ ] 해시태그 또는 키워드로 게시글을 검색
   
+<br>
+
 ### 💎 DB ERD 구조
+![erd-image](https://github.com/su-dong-dev/couple-sns/assets/43313866/84e91500-0dc3-4c0e-a214-db2b85c1030c)
+
+<br>
 
 ### 👫 참여자
 - Front-end 👨🏻‍💻 : [동현](https://github.com/pointehd)
