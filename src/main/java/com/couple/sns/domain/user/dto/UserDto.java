@@ -14,7 +14,6 @@ import java.util.List;
 @AllArgsConstructor
 public class UserDto implements UserDetails {
 
-    private Long id;
     private String username;
     private String password;
     private UserRole role;
@@ -27,21 +26,20 @@ public class UserDto implements UserDetails {
     private LocalDateTime updatedAt;
     private LocalDateTime deletedAt;
 
-    public static UserDto of(String userName, String password, UserRole role) {
-        return new UserDto(null, userName, password, role, null, null, null, null, null, null);
+    public static UserDto of(String username, String password, UserRole role) {
+        return new UserDto(username, password, role, null, null, null, null, null, null);
     }
 
-    public static UserDto of(Long id, String userName, String password, UserRole role, String nickname, String phone, String profileImage) {
-        return new UserDto(id, userName, password, role, nickname, phone, profileImage, null, null, null);
+    public static UserDto of(String username, String password, UserRole role, String nickname, String phone, String profileImage) {
+        return new UserDto(username, password, role, nickname, phone, profileImage, null, null, null);
     }
 
-    public static UserDto of(Long id, String userName, String password, UserRole role, String nickname, String phone, String profileImage, LocalDateTime registeredAt, LocalDateTime updatedAt, LocalDateTime deletedAt) {
-        return new UserDto(id, userName, password, role, nickname, phone, profileImage, registeredAt, updatedAt, deletedAt);
+    public static UserDto of(String username, String password, UserRole role, String nickname, String phone, String profileImage, LocalDateTime registeredAt, LocalDateTime updatedAt, LocalDateTime deletedAt) {
+        return new UserDto(username, password, role, nickname, phone, profileImage, registeredAt, updatedAt, deletedAt);
     }
 
     public static UserDto fromEntity(UserEntity userEntity) {
         return new UserDto(
-                userEntity.getId(),
                 userEntity.getUsername(),
                 userEntity.getPassword(),
                 userEntity.getRole(),
