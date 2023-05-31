@@ -31,13 +31,14 @@ public class UserEntity {
     @Column(name = "user_id")
     private Long id;
 
-    @Column(length = 50)
+    @Column(length = 50, nullable = false)
     private String username;
 
-    @Column(length = 200)
+    @Column(length = 200, nullable = false)
     private String password;
 
     @Enumerated(EnumType.STRING)
+    @Column(length = 30, nullable = false)
     private UserRole role;
 
     @Column(length = 50)

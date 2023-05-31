@@ -18,7 +18,7 @@ import org.hibernate.annotations.Where;
 @Getter
 @Entity
 @Table(name = "token")
-@SQLDelete(sql = "UPDATE token SET deleted = true WHERE id = ?")
+@SQLDelete(sql = "UPDATE token SET deleted = true WHERE token_id = ?")
 @Where(clause = "deleted = false")
 public class TokenEntity {
 

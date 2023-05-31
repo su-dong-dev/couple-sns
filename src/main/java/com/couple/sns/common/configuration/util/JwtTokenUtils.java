@@ -19,7 +19,7 @@ public class JwtTokenUtils {
 
     // get user role
     public static String getUserRole(String token, String key){
-        return extractClaims(token, key).get("userRole", String.class);
+        return extractClaims(token, key).get("role", String.class);
     }
 
     // check token isExpired
@@ -38,7 +38,7 @@ public class JwtTokenUtils {
     public static String createToken(String username, UserRole userRole, String key, long expiredTimeMs) {
         Claims claims = Jwts.claims();
         claims.put("username", username);
-        claims.put("userRole", userRole.name());
+        claims.put("role", userRole.name());
 
         return Jwts.builder()
                 .setClaims(claims)
