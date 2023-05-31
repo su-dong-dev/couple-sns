@@ -104,10 +104,12 @@ public class PostControllerTest {
     public void 포스트_작성_성공() throws Exception {
         String title = "title";
         String body = "body";
+        String username = "username";
+        String password = "password";
 
         given(postService.create(any(), eq(PostDto.of(title, body))))
             .willReturn(PostResponse.fromPost(
-                PostDto.fromEntity(PostEntityFixture.get("userName", title, body))));
+                PostDto.fromEntity(PostEntityFixture.get(username, password, title, body))));
 
         mockMvc.perform(post("/api/v1/posts")
                 .contentType(MediaType.APPLICATION_JSON)
@@ -136,10 +138,12 @@ public class PostControllerTest {
     public void 포스트_수정_성공() throws Exception {
         String title = "modify_title";
         String body = "modify_body";
+        String username = "username";
+        String password = "password";
 
         given(postService.modify(any(),any(), any()))
             .willReturn(PostResponse.fromPost(
-                PostDto.fromEntity(PostEntityFixture.get("userName", title, body))));
+                PostDto.fromEntity(PostEntityFixture.get(username, password, title, body))));
 
         mockMvc.perform(put( "/api/v1/posts/1")
                 .contentType(MediaType.APPLICATION_JSON)

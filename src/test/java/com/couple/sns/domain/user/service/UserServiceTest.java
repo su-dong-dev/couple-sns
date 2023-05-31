@@ -28,105 +28,73 @@ import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 @Import(JwtTokenUtils.class)
 class UserServiceTest {
 
-    @Autowired
-    private UserService userService;
+    @Autowired private UserService userService;
+    @MockBean private UserRepository userRepository;
+    @MockBean private TokenRepository tokenRepository;
+    @MockBean private BCryptPasswordEncoder encoder;
 
-    @MockBean
-    private UserRepository userRepository;
-
-    @MockBean
-    private TokenRepository tokenRepository;
-
-    @MockBean
-    private BCryptPasswordEncoder encoder;
-
+    static String username = "username";
+    static String password = "password";
     @Test
     void 회원가입_정상동작 (){
-        // given
-        String userName = "userName";
-        String password = "password";
+        given(userRepository.save(any())).willReturn(UserEntityFixture.get(username,password));
+        given(encoder.encode(password)).willReturn("encrypt_password");
 
-        given(userRepository.save(any())).willReturn(UserEntityFixture.get(userName,password));
-        given(encoder.encode(password)).willReturn("encrypt_passowrd");
+        userService.join(UserDto.of(username, password, UserRole.USER));
 
-        // when
-        userService.join(UserDto.of(userName, password, UserRole.USER));
-
-        // then
         then(userRepository).should().save(any(UserEntity.class));
     }
 
     @Test
-    void 회원가입시_이미_회원가입된_userName로_회원가입_하면_에러를_내뱉는다(){
-        // given
-        String userName = "userName";
-        String password = "password";
+    void 회원가입시_이미_회원가입된_username로_회원가입_하면_에러를_내뱉는다(){
+        UserEntity fixture = UserEntityFixture.get(username, password);
 
-        UserEntity fixture = UserEntityFixture.get(userName, password);
+        given(userRepository.findByUsername(username)).willReturn(Optional.of(fixture));
 
-        given(userRepository.findByUserName(userName)).willReturn(Optional.of(fixture));
+        SnsApplicationException e = assertThrows(SnsApplicationException.class, () -> userService.join(UserDto.of(username, password, UserRole.USER)));
 
-        // when
-        SnsApplicationException e = assertThrows(SnsApplicationException.class, () -> userService.join(UserDto.of(userName, password, UserRole.USER)));
-
-        // then
-        assertEquals(ErrorCode.DUPLICATED_USER_NAME, e.getErrorCode());
-        then(userRepository).should().findByUserName(any(String.class));
+        assertEquals(ErrorCode.DUPLICATED_USERNAME, e.getErrorCode());
+        then(userRepository).should().findByUsername(any(String.class));
     }
 
     @Test
     void 로그인_정상동작 (){
-        // given
-        String userName = "userName";
-        String password = "password";
+        UserEntity fixture = UserEntityFixture.get(username, password);
 
-        UserEntity fixture = UserEntityFixture.get(userName, password);
-
-        given(userRepository.findByUserName(any())).willReturn(Optional.of(fixture));
+        given(userRepository.findByUsername(any())).willReturn(Optional.of(fixture));
         given(encoder.matches(password, fixture.getPassword())).willReturn(true);
         given(tokenRepository.save(any())).willReturn(any(TokenEntity.class));
 
-        // when
-        userService.login(userName, password);
+        userService.login(username, password);
 
         // then
-        then(userRepository).should().findByUserName(any());
+        then(userRepository).should().findByUsername(any());
     }
 
     @Test
-    void 로그인시_userName로_회원가입한_유저가_없는_경우 (){
-        // given
-        String userName = "userName";
+    void 로그인시_username로_회원가입한_유저가_없는_경우 (){
+        String username = "userName";
         String password = "password";
 
-        given(userRepository.findByUserName(any())).willReturn(Optional.empty());
+        given(userRepository.findByUsername(any())).willReturn(Optional.empty());
 
-        // when
-        SnsApplicationException e = assertThrows(SnsApplicationException.class, () -> userService.login(userName, password));
+        SnsApplicationException e = assertThrows(SnsApplicationException.class, () -> userService.login(username, password));
 
-        // then
         assertEquals(ErrorCode.USER_NOT_FOUND, e.getErrorCode());
-        then(userRepository).should().findByUserName(any());
+        then(userRepository).should().findByUsername(any());
     }
 
     @Test
     void 로그인시_잘못된_password를_입력했을_경우() {
-        // given
-        String userName = "userName";
-        String password = "password";
         String wrongPassword = "wrongPassword";
 
-        UserEntity fixture = UserEntityFixture.get(userName, password);
+        UserEntity fixture = UserEntityFixture.get(username, password);
+        given(userRepository.findByUsername(any())).willReturn(Optional.of(fixture));
 
-        given(userRepository.findByUserName(any())).willReturn(Optional.of(fixture));
+        SnsApplicationException e = assertThrows(SnsApplicationException.class, () -> userService.login(username, wrongPassword));
 
-        // when
-        SnsApplicationException e = assertThrows(SnsApplicationException.class, () -> userService.login(userName, wrongPassword));
-
-        // then
         assertEquals(ErrorCode.INVALID_PASSWORD, e.getErrorCode());
-
-        then(userRepository).should().findByUserName(any());
+        then(userRepository).should().findByUsername(any());
     }
 
 }

@@ -14,47 +14,56 @@ import java.util.List;
 @AllArgsConstructor
 public class UserDto implements UserDetails {
 
-    private Long id;
-    private String userName;
+    private String username;
     private String password;
-    private UserRole userRole;
+    private UserRole role;
+
+    private String nickname;
+    private String phone;
+    private String profileImage;
 
     private LocalDateTime registeredAt;
     private LocalDateTime updatedAt;
     private LocalDateTime deletedAt;
 
-    public static UserDto of(Long id, String userName, String password, UserRole userRole, LocalDateTime registeredAt, LocalDateTime updatedAt, LocalDateTime deletedAt) {
-        return new UserDto(id, userName, password, userRole, registeredAt, updatedAt, deletedAt);
+    public static UserDto of(String username, String password, UserRole role) {
+        return new UserDto(username, password, role, null, null, null, null, null, null);
     }
 
-    public static UserDto of(String userName, String password, UserRole userRole) {
-        return new UserDto(null, userName, password, userRole, null, null, null);
+    public static UserDto of(String username, String password, UserRole role, String nickname, String phone, String profileImage) {
+        return new UserDto(username, password, role, nickname, phone, profileImage, null, null, null);
+    }
+
+    public static UserDto of(String username, String password, UserRole role, String nickname, String phone, String profileImage, LocalDateTime registeredAt, LocalDateTime updatedAt, LocalDateTime deletedAt) {
+        return new UserDto(username, password, role, nickname, phone, profileImage, registeredAt, updatedAt, deletedAt);
     }
 
     public static UserDto fromEntity(UserEntity userEntity) {
         return new UserDto(
-                userEntity.getId(),
-                userEntity.getUserName(),
+                userEntity.getUsername(),
                 userEntity.getPassword(),
                 userEntity.getRole(),
-                userEntity.getRegisteredAt(),
+                userEntity.getNickname(),
+                userEntity.getPhone(),
+                userEntity.getProfileImage(),
+                userEntity.getCreatedAt(),
                 userEntity.getUpdatedAt(),
                 userEntity.getDeletedAt()
         );
     }
 
     public UserEntity toEntity(String encodePassword) {
-        return UserEntity.of(userName, encodePassword, userRole);
+        return UserEntity.of(username, encodePassword, role, nickname, phone, profileImage);
     }
 
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
-        return List.of(new SimpleGrantedAuthority(this.getUserRole().toString()));
+        return List.of(new SimpleGrantedAuthority(this.getRole().toString()));
     }
 
     @Override
     public String getUsername() {
-        return this.userName;
+        return this.username;
     }
 
     @Override

@@ -9,15 +9,22 @@ import lombok.Getter;
 @AllArgsConstructor
 public class UserJoinRequest {
 
-    private String userName;
+    private String username;
     private String password;
     private UserRole role;
 
+    private String nickname;
+    private String phone;
+    private String profileImage;
+
     public UserDto toDto() {
         return UserDto.of(
-            userName,
+            username,
             password,
-            role
+            role,
+            nickname,
+            phone,
+            profileImage
         );
     }
 

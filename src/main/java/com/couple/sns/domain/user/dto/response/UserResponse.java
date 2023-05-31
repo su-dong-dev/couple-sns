@@ -9,15 +9,19 @@ import lombok.Getter;
 @AllArgsConstructor
 public class UserResponse {
 
-    private Long id;
-    private String userName;
+    private String username;
     private UserRole role;
+    private String nickname;
+    private String phone;
+    private String profileImage;
 
     public static UserResponse from(UserDto user) {
         return new UserResponse(
-                user.getId(),
                 user.getUsername(),
-                user.getUserRole()
+                user.getRole(),
+                user.getNickname(),
+                user.getPhone(),
+                user.getProfileImage()
         );
     }
 

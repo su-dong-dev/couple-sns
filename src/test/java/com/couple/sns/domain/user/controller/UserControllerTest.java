@@ -32,20 +32,29 @@ import org.springframework.test.web.servlet.MockMvc;
 @AutoConfigureMockMvc
 public class UserControllerTest {
 
-    @Autowired private MockMvc mockMvc;
-    @Autowired private ObjectMapper objectMapper;
+    private final MockMvc mockMvc;
+    private final ObjectMapper objectMapper;
+
+    public UserControllerTest(@Autowired MockMvc mvc, @Autowired ObjectMapper objectMapper) {
+        this.mockMvc = mvc;
+        this.objectMapper = objectMapper;
+    }
+
     @MockBean private UserService userService;
+
+    static String username = "username";
+    static String password = "password";
+
+    UserJoinRequest userJoinRequest = new UserJoinRequest(username, password, UserRole.USER,
+        "nickname", "phone", "profileImage");
 
     @Test
     public void 회원가입() throws Exception {
-        String userName = "userName";
-        String password = "password";
-
-        given(userService.join(UserDto.of(userName, password, UserRole.USER))).willReturn(any(UserResponse.class));
+        given(userService.join(UserDto.of(username, password, UserRole.USER))).willReturn(any(UserResponse.class));
 
         mockMvc.perform(post("/api/v1/users/join")
                         .contentType(MediaType.APPLICATION_JSON)
-                        .content(objectMapper.writeValueAsBytes(new UserJoinRequest(userName, password, UserRole.USER)))
+                        .content(objectMapper.writeValueAsBytes(userJoinRequest))
                 ).andDo(print())
                 .andExpect(status().isOk());
         then(userService).should().join(any());
@@ -53,57 +62,45 @@ public class UserControllerTest {
 
     @Test
     public void 회원가입시_이미_회원가입된_userName로_회원가입을_하는경우() throws Exception {
-        String userName = "userName";
-        String password = "password";
-
-        when(userService.join(any())).thenThrow(new SnsApplicationException(ErrorCode.DUPLICATED_USER_NAME));
+        when(userService.join(any())).thenThrow(new SnsApplicationException(ErrorCode.DUPLICATED_USERNAME));
 
         mockMvc.perform(post("/api/v1/users/join")
                         .contentType(MediaType.APPLICATION_JSON)
-                        .content(objectMapper.writeValueAsBytes(new UserJoinRequest(userName, password, UserRole.USER)))
+                        .content(objectMapper.writeValueAsBytes(userJoinRequest))
                 ).andDo(print())
                 .andExpect(status().isConflict());
     }
 
     @Test
     public void 로그인() throws Exception {
-        String userName ="userName";
-        String password = "password";
-
-        given(userService.login(userName, password))
+        given(userService.login(username, password))
                 .willReturn(new UserTokenResponse("access", "refresh"));
 
         mockMvc.perform(post("/api/v1/users/login")
                         .contentType(MediaType.APPLICATION_JSON)
-                        .content(objectMapper.writeValueAsBytes(new UserJoinRequest(userName, password, UserRole.USER)))
+                        .content(objectMapper.writeValueAsBytes(userJoinRequest))
                 ).andDo(print())
                 .andExpect(status().isOk());
     }
 
     @Test
     public void 로그인시_회원가입이_안된_userName일_경우() throws Exception {
-        String userName ="userName";
-        String password = "password";
-
-        given(userService.login(userName, password)).willThrow(new IllegalArgumentException());
+        given(userService.login(username, password)).willThrow(new IllegalArgumentException());
 
         mockMvc.perform(post("/api/v1/users/login")
                         .contentType(MediaType.APPLICATION_JSON)
-                        .content(objectMapper.writeValueAsBytes(new UserJoinRequest(userName, password, UserRole.USER)))
+                        .content(objectMapper.writeValueAsBytes(userJoinRequest))
                 ).andDo(print())
                 .andExpect(status().is5xxServerError());
     }
 
     @Test
     public void 로그인시_password가_틀릴_경우() throws Exception {
-        String userName ="userName";
-        String password = "password";
-
-        given(userService.login(userName, password)).willThrow(new SnsApplicationException(ErrorCode.INVALID_PASSWORD));
+        given(userService.login(username, password)).willThrow(new SnsApplicationException(ErrorCode.INVALID_PASSWORD));
 
         mockMvc.perform(post("/api/v1/users/login")
                         .contentType(MediaType.APPLICATION_JSON)
-                        .content(objectMapper.writeValueAsBytes(new UserJoinRequest(userName, password, UserRole.USER)))
+                        .content(objectMapper.writeValueAsBytes(userJoinRequest))
                 ).andDo(print())
                 .andExpect(status().isUnauthorized());
     }

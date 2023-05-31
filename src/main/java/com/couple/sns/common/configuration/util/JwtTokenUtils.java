@@ -12,14 +12,14 @@ import java.util.Date;
 
 public class JwtTokenUtils {
 
-    // get userName
-    public static String getUserName(String token, String key){
-        return extractClaims(token, key).get("userName", String.class);
+    // get username
+    public static String getUsername(String token, String key){
+        return extractClaims(token, key).get("username", String.class);
     }
 
     // get user role
     public static String getUserRole(String token, String key){
-        return extractClaims(token, key).get("userRole", String.class);
+        return extractClaims(token, key).get("role", String.class);
     }
 
     // check token isExpired
@@ -35,10 +35,10 @@ public class JwtTokenUtils {
                 .build().parseClaimsJws(token).getBody();
     }
 
-    public static String createToken(String userName, UserRole userRole, String key, long expiredTimeMs) {
+    public static String createToken(String username, UserRole userRole, String key, long expiredTimeMs) {
         Claims claims = Jwts.claims();
-        claims.put("userName", userName);
-        claims.put("userRole", userRole.name());
+        claims.put("username", username);
+        claims.put("role", userRole.name());
 
         return Jwts.builder()
                 .setClaims(claims)
@@ -48,9 +48,9 @@ public class JwtTokenUtils {
                 .compact();
     }
 
-    public static String createRefreshToken(String userName, String key, long refreshExpiredTimeMs) {
+    public static String createRefreshToken(String username, String key, long refreshExpiredTimeMs) {
         Claims claims = Jwts.claims();
-        claims.put("userName", userName);
+        claims.put("username", username);
 
         return Jwts.builder()
                 .setClaims(claims)
