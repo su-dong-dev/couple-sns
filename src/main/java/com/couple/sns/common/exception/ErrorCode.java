@@ -8,8 +8,8 @@ import org.springframework.http.HttpStatus;
 @AllArgsConstructor
 public enum ErrorCode {
 
-    DUPLICATED_USER_NAME(HttpStatus.CONFLICT, "User Name is duplicated"),
-    USER_NOT_FOUND(HttpStatus.NOT_FOUND, "User Name not founded"),
+    DUPLICATED_USERNAME(HttpStatus.CONFLICT, "Username is duplicated"),
+    USER_NOT_FOUND(HttpStatus.NOT_FOUND, "User not founded"),
     INVALID_PASSWORD(HttpStatus.UNAUTHORIZED, "password is invalid"),
     REFRESH_TOKEN_NOT_FOUND(HttpStatus.NOT_FOUND, "Refresh Token not founded"),
     POST_NOT_FOUND(HttpStatus.NOT_FOUND, "Post not founded"),

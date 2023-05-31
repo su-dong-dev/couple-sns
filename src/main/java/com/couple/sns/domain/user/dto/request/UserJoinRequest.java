@@ -9,13 +9,13 @@ import lombok.Getter;
 @AllArgsConstructor
 public class UserJoinRequest {
 
-    private String userName;
+    private String username;
     private String password;
     private UserRole role;
 
     public UserDto toDto() {
         return UserDto.of(
-            userName,
+            username,
             password,
             role
         );

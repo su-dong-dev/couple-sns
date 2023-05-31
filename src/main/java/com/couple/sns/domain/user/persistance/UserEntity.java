@@ -1,6 +1,7 @@
 package com.couple.sns.domain.user.persistance;
 
 import com.couple.sns.domain.user.dto.UserRole;
+import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.EnumType;
 import jakarta.persistence.Enumerated;
@@ -19,8 +20,7 @@ import org.hibernate.annotations.Where;
 @Getter
 @Entity
 @Table(name = "user", indexes = {
-    @Index(columnList = "userName", unique = true),
-    @Index(columnList = "registeredAt")
+    @Index(columnList = "username", unique = true)
 })
 @SQLDelete(sql = "UPDATE user SET deleted_at = NOW() WHERE id = ?")
 @Where(clause = "deleted_at is NULL")
@@ -28,16 +28,27 @@ public class UserEntity {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @Column(name = "user_id")
     private Long id;
 
-    private String userName;
+    @Column(length = 50)
+    private String username;
+
+    @Column(length = 200)
     private String password;
 
     @Enumerated(EnumType.STRING)
     private UserRole role;
 
+    @Column(length = 50)
+    private String nickname;
+
+    @Column(length = 11)
+    private String phone;
+    private String profileImage;
+
     @CreationTimestamp
-    private LocalDateTime registeredAt;
+    private LocalDateTime createdAt;
 
     @UpdateTimestamp
     private LocalDateTime updatedAt;
@@ -46,13 +57,17 @@ public class UserEntity {
     protected UserEntity() {
     }
 
-    private UserEntity(String userName, String password, UserRole role) {
-        this.userName = userName;
+    private UserEntity(String username, String password, UserRole role, String nickname, String phone, String profileImage) {
+        this.username = username;
         this.password = password;
         this.role = role;
+        this.nickname = nickname;
+        this.phone = phone;
+        this.profileImage = profileImage;
     }
 
-    public static UserEntity of(String userName, String password, UserRole role) {
-        return new UserEntity(userName, password, role);
+    public static UserEntity of(String username, String password, UserRole role, String nickname, String phone, String profileImage) {
+        return new UserEntity(username, password, role, nickname, phone, profileImage);
     }
+
 }

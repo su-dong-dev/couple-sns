@@ -28,8 +28,8 @@ public class UserService {
 
     @Transactional
     public UserResponse join(UserDto dto) {
-        userRepository.findByUserName(dto.getUsername()).ifPresent(it -> {
-            throw new SnsApplicationException(ErrorCode.DUPLICATED_USER_NAME, "중복된 아이디가 존재합니다.");
+        userRepository.findByUsername(dto.getUsername()).ifPresent(it -> {
+            throw new SnsApplicationException(ErrorCode.DUPLICATED_USERNAME, "중복된 아이디가 존재합니다.");
         });
 
         userRepository.save(dto.toEntity(encoder.encode(dto.getPassword())));
@@ -37,8 +37,8 @@ public class UserService {
         return UserResponse.from(dto);
     }
 
-    public UserTokenResponse login(String userName, String password) {
-        UserEntity user = userRepository.findByUserName(userName)
+    public UserTokenResponse login(String username, String password) {
+        UserEntity user = userRepository.findByUsername(username)
             .orElseThrow(() -> {
                 throw new SnsApplicationException(ErrorCode.USER_NOT_FOUND, "가입된 아이디를 찾을 수 없습니다.");
             });
@@ -47,9 +47,9 @@ public class UserService {
             throw new SnsApplicationException(ErrorCode.INVALID_PASSWORD, "비밀번호가 틀렸습니다.");
         }
 
-        String token = JwtTokenUtils.createToken(userName, user.getRole(),
+        String token = JwtTokenUtils.createToken(username, user.getRole(),
             jwtProperties.getSecretKey(), jwtProperties.getExpiredTimeMs());
-        String refreshToken = JwtTokenUtils.createRefreshToken(userName, jwtProperties.getSecretKey(),
+        String refreshToken = JwtTokenUtils.createRefreshToken(username, jwtProperties.getSecretKey(),
             jwtProperties.getExpiredTimeMs());
 
         tokenRepository.save(TokenEntity.of(refreshToken, user));
@@ -59,9 +59,9 @@ public class UserService {
 
     @Transactional
     public UserTokenResponse reissue(String token) {
-        String userName = JwtTokenUtils.getUserName(token, jwtProperties.getSecretKey());
+        String username = JwtTokenUtils.getUsername(token, jwtProperties.getSecretKey());
 
-        UserEntity userEntity = userRepository.findByUserName(userName)
+        UserEntity userEntity = userRepository.findByUsername(username)
             .orElseThrow(() -> {
                 throw new SnsApplicationException(ErrorCode.USER_NOT_FOUND, "가입된 아이디를 찾을 수 없습니다.");
             });
@@ -71,9 +71,9 @@ public class UserService {
                 throw new SnsApplicationException(ErrorCode.REFRESH_TOKEN_NOT_FOUND, "토근을 찾을 수 없습니다.");
         });
 
-        String accessToken = JwtTokenUtils.createToken(userName, userEntity.getRole(),
+        String accessToken = JwtTokenUtils.createToken(username, userEntity.getRole(),
             jwtProperties.getSecretKey(), jwtProperties.getExpiredTimeMs());
-        String refreshToken = JwtTokenUtils.createRefreshToken(userName, jwtProperties.getSecretKey(),
+        String refreshToken = JwtTokenUtils.createRefreshToken(username, jwtProperties.getSecretKey(),
             jwtProperties.getExpiredTimeMs());
 
         tokenRepository.delete(tokenEntity);

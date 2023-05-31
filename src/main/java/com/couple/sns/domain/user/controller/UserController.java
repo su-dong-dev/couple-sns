@@ -28,7 +28,7 @@ public class UserController {
     @PostMapping("/login")
     public Response<UserTokenResponse> login(@RequestBody UserLoginRequest userLoginRequest) {
         return Response.success(
-            userService.login(userLoginRequest.getUserName(), userLoginRequest.getPassword()));
+            userService.login(userLoginRequest.getUsername(), userLoginRequest.getPassword()));
     }
 
     @PostMapping("/reissue")

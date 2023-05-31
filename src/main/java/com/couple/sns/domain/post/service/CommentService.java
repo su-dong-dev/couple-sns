@@ -81,7 +81,7 @@ public class CommentService {
     }
 
     private UserEntity getUserOrElseThrow(String userName) {
-        return userRepository.findByUserName(userName)
+        return userRepository.findByUsername(userName)
             .orElseThrow(() -> new SnsApplicationException(ErrorCode.USER_NOT_FOUND,
                 String.format("%s not founded", userName)));
     }
