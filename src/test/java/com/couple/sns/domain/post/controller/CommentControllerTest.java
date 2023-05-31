@@ -12,10 +12,10 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 
 import com.couple.sns.common.exception.ErrorCode;
 import com.couple.sns.common.exception.SnsApplicationException;
+import com.couple.sns.domain.post.dto.response.CommentLikeResponse;
 import com.couple.sns.domain.post.dto.response.CommentResponse;
-import com.couple.sns.domain.post.dto.response.LikeResponse;
 import com.couple.sns.domain.post.service.CommentService;
-import com.couple.sns.domain.user.dto.response.UserResponse;
+import com.couple.sns.domain.user.dto.response.UserLikeResponse;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import java.util.ArrayList;
 import java.util.List;
@@ -35,23 +35,26 @@ import org.springframework.test.web.servlet.MockMvc;
 @AutoConfigureMockMvc
 public class CommentControllerTest {
 
-    @Autowired
-    private MockMvc mockMvc;
-    @Autowired
-    private ObjectMapper objectMapper;
+    private final MockMvc mockMvc;
+    private final ObjectMapper objectMapper;
 
-    @MockBean
-    private CommentService commentService;
+    @MockBean private CommentService commentService;
+
+    public CommentControllerTest(@Autowired MockMvc mvc, @Autowired ObjectMapper objectMapper) {
+        this.mockMvc = mvc;
+        this.objectMapper = objectMapper;
+    }
 
     Long postId = 1L;
     Long commentId = 1L;
-    String userName = "userName";
+    String username = "username";
     String content = "댓글";
+
+    CommentResponse commentResponse = new CommentResponse(username, content);
 
     @Test
     @WithMockUser(authorities = "USER")
     public void 댓글목록() throws Exception {
-
         given(commentService.list(eq(postId), any(Pageable.class))).willReturn(Page.empty());
 
         mockMvc.perform(get("/api/v1/posts/" + postId + "/comments")
@@ -63,9 +66,7 @@ public class CommentControllerTest {
     @Test
     @WithMockUser(authorities = "USER")
     public void 댓글작성_성공() throws Exception {
-
-        given(commentService.create(eq(userName), eq(postId), eq(content))).willReturn(
-            new CommentResponse(postId, commentId, userName, content));
+        given(commentService.create(eq(username), eq(postId), eq(content))).willReturn(commentResponse);
 
         mockMvc.perform(post("/api/v1/posts/" + postId + "/comments")
                 .contentType(MediaType.APPLICATION_JSON)
@@ -77,10 +78,8 @@ public class CommentControllerTest {
     @Test
     @WithAnonymousUser
     public void 가입한적없는_유저가_댓글을_작성할_경우() throws Exception {
-
-        given(commentService.create(eq(userName), eq(postId), eq(content))).willThrow(
-            new SnsApplicationException(
-                ErrorCode.USER_NOT_FOUND));
+        given(commentService.create(eq(username), eq(postId), eq(content))).willThrow(
+            new SnsApplicationException(ErrorCode.USER_NOT_FOUND));
 
         mockMvc.perform(post("/api/v1/posts/" + postId + "/comments")
                 .contentType(MediaType.APPLICATION_JSON)
@@ -92,7 +91,6 @@ public class CommentControllerTest {
     @Test
     @WithMockUser(authorities = "USER")
     public void 댓글삭제_성공() throws Exception {
-
         mockMvc.perform(delete("/api/v1/comments/" + commentId)
                 .contentType(MediaType.APPLICATION_JSON)
             ).andDo(print())
@@ -102,7 +100,6 @@ public class CommentControllerTest {
     @Test
     @WithMockUser(authorities = "USER")
     public void 좋아요_기능() throws Exception {
-
         mockMvc.perform(post("/api/v1/comments/1/likes")
                 .contentType(MediaType.APPLICATION_JSON)
             ).andDo(print())
@@ -112,7 +109,6 @@ public class CommentControllerTest {
     @Test
     @WithAnonymousUser
     public void 좋아요_기능_로그인하지_않은_경우() throws Exception {
-
         mockMvc.perform(post("/api/v1/comments/1/likes")
                 .contentType(MediaType.APPLICATION_JSON)
             ).andDo(print())
@@ -122,7 +118,6 @@ public class CommentControllerTest {
     @Test
     @WithMockUser(authorities = "USER")
     public void 좋아요버튼_클릭시_포스트가_없는_경우() throws Exception {
-
         willThrow(new SnsApplicationException(ErrorCode.COMMENT_NOT_FOUND)).given(commentService).like(any(), any());
 
         mockMvc.perform(post("/api/v1/comments/1/likes")
@@ -134,16 +129,14 @@ public class CommentControllerTest {
     @Test
     @WithMockUser(authorities = "USER")
     public void 좋아요누른_유저_목록() throws Exception {
-
         Long commentId = 1L;
-        Long pageSize = 1L;
-        List<UserResponse> users = new ArrayList<>();
+        List<UserLikeResponse> users = new ArrayList<>();
 
-        given(commentService.likeList(eq(commentId),any(Pageable.class))).willReturn(new LikeResponse(commentId, pageSize, users));
+        given(commentService.likeList(eq(commentId),any(Pageable.class))).willReturn(new CommentLikeResponse(commentId, users));
 
         mockMvc.perform(get("/api/v1/comments/1/likes")
                 .contentType(MediaType.APPLICATION_JSON)
-                .content(objectMapper.writeValueAsBytes(new LikeResponse(1L, 1L, users)))
+                .content(objectMapper.writeValueAsBytes(new CommentLikeResponse(1L,  users)))
             ).andDo(print())
             .andExpect(status().isOk());
     }

@@ -16,9 +16,10 @@ import com.couple.sns.common.exception.SnsApplicationException;
 import com.couple.sns.domain.common.fixture.PostEntityFixture;
 import com.couple.sns.domain.post.dto.PostDto;
 import com.couple.sns.domain.post.dto.request.PostRequest;
-import com.couple.sns.domain.post.dto.response.LikeResponse;
+import com.couple.sns.domain.post.dto.response.PostLikeResponse;
 import com.couple.sns.domain.post.dto.response.PostResponse;
 import com.couple.sns.domain.post.service.PostService;
+import com.couple.sns.domain.user.dto.response.UserLikeResponse;
 import com.couple.sns.domain.user.dto.response.UserResponse;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import java.util.ArrayList;
@@ -42,8 +43,7 @@ public class PostControllerTest {
     private final MockMvc mockMvc;
     private final ObjectMapper objectMapper;
 
-    @MockBean
-    private PostService postService;
+    @MockBean private PostService postService;
 
     public PostControllerTest(@Autowired MockMvc mvc, @Autowired ObjectMapper objectMapper) {
         this.mockMvc = mvc;
@@ -199,14 +199,13 @@ public class PostControllerTest {
     public void 좋아요누른_유저_목록() throws Exception {
 
         Long postId = 1L;
-        Long pageSize = 1L;
-        List<UserResponse> users = new ArrayList<>();
+        List<UserLikeResponse> users = new ArrayList<>();
 
-        given(postService.likeList(eq(postId),any(Pageable.class))).willReturn(new LikeResponse(postId, pageSize, users));
+        given(postService.likeList(eq(postId),any(Pageable.class))).willReturn(new PostLikeResponse(postId, users));
 
         mockMvc.perform(get("/api/v1/posts/1/likes")
                 .contentType(MediaType.APPLICATION_JSON)
-                .content(objectMapper.writeValueAsBytes(new LikeResponse( 1L, 1L, users)))
+                .content(objectMapper.writeValueAsBytes(new PostLikeResponse( 1L, users)))
             ).andDo(print())
             .andExpect(status().isOk());
     }

@@ -73,7 +73,7 @@ class UserServiceTest {
 
     @Test
     void 로그인시_username로_회원가입한_유저가_없는_경우 (){
-        String username = "userName";
+        String username = "username";
         String password = "password";
 
         given(userRepository.findByUsername(any())).willReturn(Optional.empty());
