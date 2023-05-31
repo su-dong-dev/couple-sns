@@ -45,13 +45,16 @@ public class UserControllerTest {
     static String username = "username";
     static String password = "password";
 
+    UserJoinRequest userJoinRequest = new UserJoinRequest(username, password, UserRole.USER,
+        "nickname", "phone", "profileImage");
+
     @Test
     public void 회원가입() throws Exception {
         given(userService.join(UserDto.of(username, password, UserRole.USER))).willReturn(any(UserResponse.class));
 
         mockMvc.perform(post("/api/v1/users/join")
                         .contentType(MediaType.APPLICATION_JSON)
-                        .content(objectMapper.writeValueAsBytes(new UserJoinRequest(username, password, UserRole.USER)))
+                        .content(objectMapper.writeValueAsBytes(userJoinRequest))
                 ).andDo(print())
                 .andExpect(status().isOk());
         then(userService).should().join(any());
@@ -63,7 +66,7 @@ public class UserControllerTest {
 
         mockMvc.perform(post("/api/v1/users/join")
                         .contentType(MediaType.APPLICATION_JSON)
-                        .content(objectMapper.writeValueAsBytes(new UserJoinRequest(username, password, UserRole.USER)))
+                        .content(objectMapper.writeValueAsBytes(userJoinRequest))
                 ).andDo(print())
                 .andExpect(status().isConflict());
     }
@@ -75,7 +78,7 @@ public class UserControllerTest {
 
         mockMvc.perform(post("/api/v1/users/login")
                         .contentType(MediaType.APPLICATION_JSON)
-                        .content(objectMapper.writeValueAsBytes(new UserJoinRequest(username, password, UserRole.USER)))
+                        .content(objectMapper.writeValueAsBytes(userJoinRequest))
                 ).andDo(print())
                 .andExpect(status().isOk());
     }
@@ -86,7 +89,7 @@ public class UserControllerTest {
 
         mockMvc.perform(post("/api/v1/users/login")
                         .contentType(MediaType.APPLICATION_JSON)
-                        .content(objectMapper.writeValueAsBytes(new UserJoinRequest(username, password, UserRole.USER)))
+                        .content(objectMapper.writeValueAsBytes(userJoinRequest))
                 ).andDo(print())
                 .andExpect(status().is5xxServerError());
     }
@@ -97,7 +100,7 @@ public class UserControllerTest {
 
         mockMvc.perform(post("/api/v1/users/login")
                         .contentType(MediaType.APPLICATION_JSON)
-                        .content(objectMapper.writeValueAsBytes(new UserJoinRequest(username, password, UserRole.USER)))
+                        .content(objectMapper.writeValueAsBytes(userJoinRequest))
                 ).andDo(print())
                 .andExpect(status().isUnauthorized());
     }

@@ -13,11 +13,18 @@ public class UserJoinRequest {
     private String password;
     private UserRole role;
 
+    private String nickname;
+    private String phone;
+    private String profileImage;
+
     public UserDto toDto() {
         return UserDto.of(
             username,
             password,
-            role
+            role,
+            nickname,
+            phone,
+            profileImage
         );
     }
 
