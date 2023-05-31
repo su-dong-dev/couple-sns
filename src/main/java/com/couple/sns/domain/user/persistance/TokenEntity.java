@@ -1,6 +1,8 @@
 package com.couple.sns.domain.user.persistance;
 
+import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
+import jakarta.persistence.FetchType;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
@@ -22,16 +24,17 @@ public class TokenEntity {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @Column(name = "token_id")
     private Long id;
 
-    @ManyToOne()
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "user_id")
     private UserEntity user;
 
     private String refreshToken;
 
     @CreationTimestamp
-    private LocalDateTime registeredAt;
+    private LocalDateTime createdAt;
 
     private boolean deleted;
 
